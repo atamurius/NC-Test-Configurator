@@ -1,0 +1,33 @@
+<!ELEMENT schema (group*)>
+
+<!ELEMENT group (action+)>
+<!ATTLIST group title CDATA #REQUIRED>
+
+<!ELEMENT action (property*,result*)>
+<!ATTLIST action title CDATA #REQUIRED>
+<!ATTLIST action id CDATA #REQUIRED>
+
+<!ELEMENT property EMPTY>
+<!ATTLIST property name CDATA #REQUIRED>
+<!ATTLIST property title CDATA #REQUIRED>
+<!ATTLIST property type CDATA #REQUIRED>
+<!-- type: enum -->
+<!ATTLIST property values CDATA #IMPLIED>
+<!ATTLIST property default CDATA #IMPLIED>
+<!-- type: int -->
+<!ATTLIST property min CDATA #IMPLIED>
+<!ATTLIST property max CDATA #IMPLIED>
+<!-- type: ref -->
+<!ATTLIST property ref-type CDATA #IMPLIED>
+<!-- type: set -->
+<!ATTLIST property values CDATA #IMPLIED>
+<!-- type: string -->
+<!ATTLIST property max CDATA #IMPLIED>
+<!ATTLIST property required CDATA #IMPLIED>
+<!ATTLIST property pattern CDATA #IMPLIED>
+<!-- type: bool -->
+
+<!ELEMENT result EMPTY>
+<!ATTLIST result name CDATA #REQUIRED>
+<!ATTLIST result title CDATA #REQUIRED>
+<!ATTLIST result type CDATA #REQUIRED>

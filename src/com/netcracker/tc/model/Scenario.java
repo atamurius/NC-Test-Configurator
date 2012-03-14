@@ -52,9 +52,9 @@ public class Scenario
      * @param title of step
      * @param proto prototype action
      */
-    public Scenario(String title, Action proto)
+    public Scenario(Action proto)
     {
-        this.title = title;
+        this.title = proto.getTitle();
         this.prototype = proto;
         
         Map<String,Property> props = new LinkedHashMap<String, Property>();
@@ -84,7 +84,8 @@ public class Scenario
     public void setTitle(String title)
     {
         this.title = title;
-        test.getGroup().notify(this, CHANGED);
+        if (test != null)
+            test.getGroup().notify(this, CHANGED);
     }
 
     /**
@@ -146,8 +147,7 @@ public class Scenario
         if (this.getTest() != scenario.getTest())
             return false;
         else {
-            List<Scenario> ss = test.scenarios();
-            return ss.indexOf(this) < ss.indexOf(scenario);
+            return getIndex() < scenario.getIndex();
         }
     }
 
@@ -166,12 +166,17 @@ public class Scenario
 
     public void moveBy(int delta)
     {
-        int index = test.steps.indexOf(this) + delta;
+        int index = getIndex() + delta;
         if (index >= 0 && index < test.steps.size()) {
             test.steps.remove(this);
             test.steps.add(index, this);
             test.getGroup().notify(this, Event.ADDED);
         }
+    }
+
+    public int getIndex()
+    {
+        return test.steps.indexOf(this);
     }
 }
 

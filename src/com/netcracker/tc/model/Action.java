@@ -14,8 +14,14 @@ public class Action
 
     private final List<Result> results;
     
-    public Action(List<Property> properties, List<Result> results)
+    private final String name;
+    
+    private final String title;
+    
+    public Action(String name, String title, List<Property> properties, List<Result> results)
     {
+        this.name = name;
+        this.title = title;
         this.properties = Collections.unmodifiableList(properties);
         this.results = Collections.unmodifiableList(results);
     }
@@ -28,5 +34,15 @@ public class Action
     public List<Result> results()
     {
         return results;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public String getTitle()
+    {
+        return title;
     }
 }

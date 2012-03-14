@@ -1,0 +1,13 @@
+<!ELEMENT tests (test*)>
+
+<!ELEMENT test (scenario*)>
+<!ATTLIST test title CDATA #REQUIRED>
+
+<!ELEMENT scenario (property*)>
+<!ATTLIST scenario id CDATA #REQUIRED>
+<!ATTLIST scenario type CDATA #REQUIRED>
+<!ATTLIST scenario title CDATA #REQUIRED>
+
+<!ELEMENT property EMPTY>
+<!ATTLIST property name CDATA #REQUIRED>
+<!ATTLIST property value CDATA #REQUIRED>

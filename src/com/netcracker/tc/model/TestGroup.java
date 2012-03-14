@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class TestGroup
@@ -48,6 +49,17 @@ public class TestGroup
         tests.remove(test);
         notify(test, REMOVED);
         test.setGroup(null);
+    }
+    
+    public void clear()
+    {
+        for (Iterator<Test> tests = this.tests.iterator();
+                tests.hasNext();) {
+            Test test = tests.next();
+            tests.remove();
+            notify(test, REMOVED);
+            test.setGroup(null);
+        }
     }
     
     /**

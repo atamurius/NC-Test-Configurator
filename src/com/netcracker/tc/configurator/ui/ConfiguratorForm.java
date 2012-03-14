@@ -1,13 +1,13 @@
 package com.netcracker.tc.configurator.ui;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -17,30 +17,21 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.netcracker.tc.configurator.ui.widgets.BoolWidget;
-import com.netcracker.tc.configurator.ui.widgets.EnumWidget;
-import com.netcracker.tc.configurator.ui.widgets.IntWidget;
-import com.netcracker.tc.configurator.ui.widgets.RefWidget;
-import com.netcracker.tc.configurator.ui.widgets.SetWidget;
-import com.netcracker.tc.configurator.ui.widgets.StringWidget;
+import com.netcracker.tc.configurator.data.DataException;
+import com.netcracker.tc.configurator.data.TestGroupWriter;
+import com.netcracker.tc.configurator.data.xml.XmlTestGroupReader;
+import com.netcracker.tc.configurator.data.xml.XmlTestGroupWriter;
 import com.netcracker.tc.model.Action;
-import com.netcracker.tc.model.Property;
-import com.netcracker.tc.model.Result;
+import com.netcracker.tc.model.ActionGroup;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
-import com.netcracker.tc.model.TestGroup;
-import com.netcracker.tc.model.types.BoolType;
-import com.netcracker.tc.model.types.EnumType;
-import com.netcracker.tc.model.types.IntType;
-import com.netcracker.tc.model.types.RefType;
-import com.netcracker.tc.model.types.SetType;
-import com.netcracker.tc.model.types.StringType;
 import com.netcracker.util.Label;
 
 /**
@@ -69,7 +60,11 @@ public class ConfiguratorForm
     private JTree tree;
     private TestGroupModel model;
     private ScenarioEditor editor;
-    private EditorRegistry widgetRegistry = new EditorRegistry();
+    private TestGroupWriter writer;
+    private ActionGroup actions;
+    
+    //TODO:
+    public final EditorRegistry widgetRegistry = new EditorRegistry();
     private JMenu menuNew, popupNew;
 
     @SuppressWarnings("serial")
@@ -108,6 +103,25 @@ public class ConfiguratorForm
 
             setJMenuBar(new JMenuBar() 
             {{
+                add(new JMenu(L.get("ui.menu.file"))
+                {{
+                    add(new JMenuItem(new AbstractAction(L.get("ui.menu.file.open")) {
+                        {putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                                    Character.valueOf('o'), InputEvent.CTRL_DOWN_MASK));
+                        }
+                        public void actionPerformed(ActionEvent e) {
+                            openTests();
+                        }
+                    }));
+                    add(new JMenuItem(new AbstractAction(L.get("ui.menu.file.save")) {
+                        {putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(
+                                    Character.valueOf('s'), InputEvent.CTRL_DOWN_MASK));
+                        }
+                        public void actionPerformed(ActionEvent e) {
+                            saveTests();
+                        }
+                    }));
+                }});
                 add(new JMenu(L.get("ui.menu.edit"))
                 {{
                     add(new JMenuItem(actNewTest));
@@ -223,39 +237,31 @@ public class ConfiguratorForm
      * @param type name to add
      */
     @SuppressWarnings("serial")
-    public void addStepType(String group, final String title, final Action type)
+    public void setActions(ActionGroup actions)
     {
-        JMenu groupMenu1 = null;
-        JMenu groupMenu2 = null;
-        for (Component com : menuNew.getMenuComponents())
-            if (com instanceof JMenu && ((JMenu) com).getText().equals(group)) {
-                groupMenu1 = (JMenu) com;
-                break;
-            }
-        for (Component com : popupNew.getMenuComponents())
-            if (com instanceof JMenu && ((JMenu) com).getText().equals(group)) {
-                groupMenu2 = (JMenu) com;
-                break;
-            }
-        if (groupMenu1 == null) {
-            groupMenu1 = new JMenu(group);
+        this.actions = actions;
+        for (String group : actions.groups()) {
+            JMenu groupMenu1 = new JMenu(group);
             menuNew.add(groupMenu1);
-            groupMenu2 = new JMenu(group);
+            JMenu groupMenu2 = new JMenu(group);
             popupNew.add(groupMenu2);
-        }
-        AbstractAction action = new AbstractAction(title) {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                Test test = getSelectedTest();
-                if (test == null)
-                    displayErrorMessage(L.get("ui.error.no_test_selected"));
-                else
-                    changeElementName(test.add(new Scenario(title, type)));
+            
+            for (final Action action : actions.actions(group)) {
+                AbstractAction a = new AbstractAction(action.getTitle()) {
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        Test test = getSelectedTest();
+                        if (test == null)
+                            displayErrorMessage(L.get("ui.error.no_test_selected"));
+                        else
+                            changeElementName(test.add(new Scenario(action)));
+                    }
+                };
+                groupMenu1.add(new JMenuItem(a));
+                groupMenu2.add(new JMenuItem(a));
             }
-        };
-        groupMenu1.add(new JMenuItem(action));
-        groupMenu2.add(new JMenuItem(action));
+        }
     }
 
     private void changeElementName(Object element)
@@ -307,6 +313,42 @@ public class ConfiguratorForm
             selectElement(scenario);
         }
     }
+    
+    private void saveTests()
+    {
+        if (writer == null) {
+            JFileChooser fc = new JFileChooser(".");
+            if (fc.showSaveDialog(frame) != JFileChooser.APPROVE_OPTION)
+                return;
+            frame.setTitle(L.get("ui.title.file", fc.getSelectedFile().getName()));
+            writer = new XmlTestGroupWriter(fc.getSelectedFile().toString());
+        }
+        try {
+            writer.write(model.getRoot());
+        }
+        catch (DataException e) {
+            e.printStackTrace();
+            displayErrorMessage(e.getLocalizedMessage());
+        }
+    }
+
+    private void openTests()
+    {
+        JFileChooser fc = new JFileChooser(".");
+        if (fc.showOpenDialog(frame) != JFileChooser.APPROVE_OPTION)
+            return;
+        frame.setTitle(L.get("ui.title.file", fc.getSelectedFile().getName()));
+        XmlTestGroupReader reader = new XmlTestGroupReader(fc.getSelectedFile().toString());
+        try {
+            model.getRoot().clear();
+            reader.read(model.getRoot(), actions);
+            writer = new XmlTestGroupWriter(fc.getSelectedFile().toString());
+        }
+        catch (DataException e) {
+            e.printStackTrace();
+            displayErrorMessage(e.getLocalizedMessage());
+        }
+    }
 
     /**
      * Displays error message to user with given text.
@@ -320,42 +362,10 @@ public class ConfiguratorForm
                 JOptionPane.ERROR_MESSAGE);
     }
     
-    public static void main(String[] args)
+    public void show()
     {
-        ConfiguratorForm form = new ConfiguratorForm();
-        
-        form.widgetRegistry.register(StringType.class, StringWidget.class);
-        form.widgetRegistry.register(IntType.class, IntWidget.class);
-        form.widgetRegistry.register(BoolType.class, BoolWidget.class);
-        form.widgetRegistry.register(EnumType.class, EnumWidget.class);
-        form.widgetRegistry.register(SetType.class, SetWidget.class);
-        form.widgetRegistry.register(RefType.class, RefWidget.class);
-        
-        Action a = new Action(
-                Arrays.asList(
-                    new Property("name", "Name", "Your name", new StringType(true)),
-                    new Property("cardNumber", "Card number", "Card number as XXXX", new StringType(true, 4)),
-                    new Property("x", "Some number", "Any number", new IntType()),
-                    new Property("weight", "Your weight", "Integer weight", IntType.minBy(0)),
-                    new Property("required", "Required", "This checkbox is required", new BoolType()),
-                    new Property("registered", "Registered", "I'm registered", new BoolType()),
-                    new Property("city", "Your city", "Select your city", new EnumType("Kiev",
-                            new Object[] { "Sumy", "Moskow", "Kiev", "New York" })),
-                    new Property("types", "Favorite types", "Your favorite types", new SetType(
-                            new Object[] { "Integer", "String", "Boolean", "Enumeration" })),
-                    new Property("id", "Id of scenario", "Id of previous scenario", 
-                            new RefType("test.id"))
-                ),
-                Arrays.asList(
-                    new Result("id", "ID number", "test.id")));
-        
-        form.addStepType("Examples", "Test scenario", a);
-        
-        Scenario s = ((TestGroup) form.model.getRoot()).add(new Test("Example")).add(new Scenario("Scenario", a));
-        form.selectElement(s);
-        
-        form.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        form.frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
     private void selectElement(Object obj)

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE scheme SYSTEM "schema.dtd">
+<schema>
+    <group title="Person">
+        <action title="Create" id="person:create">
+            <property name="firstName" title="First name" type="string" required="true"/>
+            <property name="lastName" title="Last name" type="string"/>
+            <property name="age" title="Age in years" type="int" min="1"/>
+            <property name="gender" title="Gender" type="enum" values="Male,Female"/>
+            <result name="id" title="ID" type="person:id"/>
+        </action>
+        <action title="Delete" id="person:delete">
+            <property name="id" title="Person" type="ref" ref-type="person:id"/>
+        </action>
+    </group>
+</schema>
