@@ -4,6 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -25,13 +28,10 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import com.netcracker.tc.configurator.data.DataException;
-import com.netcracker.tc.configurator.data.TestGroupWriter;
-import com.netcracker.tc.configurator.data.xml.XmlTestGroupReader;
-import com.netcracker.tc.configurator.data.xml.XmlTestGroupWriter;
 import com.netcracker.tc.model.Action;
 import com.netcracker.tc.model.ActionGroup;
 import com.netcracker.tc.model.Scenario;
-import com.netcracker.tc.model.Test;
+import com.netcracker.tc.model.TestGroup;
 import com.netcracker.util.Label;
 
 /**
@@ -56,15 +56,12 @@ public class ConfiguratorForm
 
     private final Label.Bundle L = Label.getBundle("ui");
 
+    private final Configurator configurator;
+    
     private JFrame frame;
     private JTree tree;
     private TestGroupModel model;
     private ScenarioEditor editor;
-    private TestGroupWriter writer;
-    private ActionGroup actions;
-    
-    //TODO:
-    public final EditorRegistry widgetRegistry = new EditorRegistry();
     private JMenu menuNew, popupNew;
 
     @SuppressWarnings("serial")
@@ -80,26 +77,34 @@ public class ConfiguratorForm
     @SuppressWarnings("serial")
     private final AbstractAction actMoveUp = new AbstractAction(L.get("ui.menu.move_scenario_up")) {
         @Override public void actionPerformed(ActionEvent e) {
-            moveScenario(-1); }};
+            configurator.moveScenario(-1); }};
 
     @SuppressWarnings("serial")
     private final AbstractAction actMoveDown = new AbstractAction(L.get("ui.menu.move_scenario_down")) {
         @Override public void actionPerformed(ActionEvent e) {
-            moveScenario(+1); }};
+            configurator.moveScenario(+1); }};
 
     /**
      * Create gui.
+     * @param tests 
+     * @param configurator2 
      */
     @SuppressWarnings("serial")
-    public ConfiguratorForm()
+    public ConfiguratorForm(Configurator conf, final EditorRegistry widgetRegistry, final TestGroup tests)
     {
+        this.configurator = conf;
+        
         final AbstractAction actNewTest = new AbstractAction(L.get("ui.menu.new_test")) {
             @Override public void actionPerformed(ActionEvent e) {
-                createTest(); }};
+                configurator.createTest(); }};
 
         frame = new JFrame(L.get("ui.title")) 
         {{
             setSize(800, 600);
+            
+            addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    configurator.close(); }});
 
             setJMenuBar(new JMenuBar() 
             {{
@@ -110,7 +115,13 @@ public class ConfiguratorForm
                                     Character.valueOf('o'), InputEvent.CTRL_DOWN_MASK));
                         }
                         public void actionPerformed(ActionEvent e) {
-                            openTests();
+                            try {
+                                configurator.openTests();
+                            }
+                            catch (DataException e1) {
+                                e1.printStackTrace();
+                                displayErrorMessage(e1.getLocalizedMessage());
+                            }
                         }
                     }));
                     add(new JMenuItem(new AbstractAction(L.get("ui.menu.file.save")) {
@@ -118,7 +129,13 @@ public class ConfiguratorForm
                                     Character.valueOf('s'), InputEvent.CTRL_DOWN_MASK));
                         }
                         public void actionPerformed(ActionEvent e) {
-                            saveTests();
+                            try {
+                                configurator.saveTests();
+                            }
+                            catch (DataException e1) {
+                                e1.printStackTrace();
+                                displayErrorMessage(e1.getLocalizedMessage());
+                            }
                         }
                     }));
                 }});
@@ -141,7 +158,7 @@ public class ConfiguratorForm
                 setDoubleBuffered(false);
                 
                 setLeftComponent(new JScrollPane(tree = 
-                        new JTree(model = new TestGroupModel())
+                        new JTree(model = new TestGroupModel(tests))
                 {{
                     setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                     getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -181,15 +198,17 @@ public class ConfiguratorForm
         selectionChanged();
     }
 
-    private void createTest()
+    public Object getSelection()
     {
-        changeElementName(model.getRoot().add(new Test(L.get("ui.default_test_title"))));
+        TreePath selection = tree.getSelectionPath();
+        return (selection == null) 
+                ? null 
+                : selection.getLastPathComponent();
     }
     
     private void selectionChanged()
     {
-        TreePath selection = tree.getSelectionPath();
-        Object obj = selection == null ? null : selection.getLastPathComponent();
+        Object obj = getSelection();
         
         actEditElement.setEnabled(obj != null);
         actDelElement.setEnabled(obj != null);
@@ -198,51 +217,21 @@ public class ConfiguratorForm
         menuNew.setEnabled(obj != null);
         popupNew.setEnabled(obj != null);
         
-        Scenario step = getSelectedScenario();
-        if (step != null)
-            displayEditorFor(step);
+        if (obj instanceof Scenario)
+            editor.reset((Scenario) obj);
     }
     
-    private void displayEditorFor(Scenario action)
-    {
-        editor.reset(action);
-    }
-
-    /**
-     * Find currently selected action if any
-     * @return selected action or null if none
-     */
-    private Scenario getSelectedScenario()
-    {
-        TreePath path = tree.getSelectionPath();
-        return (path == null || path.getPathCount() < 3) 
-                ? null 
-                : (Scenario) path.getPathComponent(2);
-    }
-
-    /**
-     * Find currently selected test case or parent test case of selected action.
-     * @return selected test case or null if none
-     */
-    private Test getSelectedTest()
-    {
-        TreePath path = tree.getSelectionPath();
-        return (path == null || path.getPathCount() < 2) 
-                ? null 
-                : (Test) path.getPathComponent(1);
-    }
-
     /**
      * Add new action type to "Create action menu"
      * @param type name to add
      */
     @SuppressWarnings("serial")
-    public void setActions(ActionGroup actions)
+    public void addActions(ActionGroup actions)
     {
-        this.actions = actions;
         for (String group : actions.groups()) {
             JMenu groupMenu1 = new JMenu(group);
             menuNew.add(groupMenu1);
+
             JMenu groupMenu2 = new JMenu(group);
             popupNew.add(groupMenu2);
             
@@ -251,11 +240,7 @@ public class ConfiguratorForm
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        Test test = getSelectedTest();
-                        if (test == null)
-                            displayErrorMessage(L.get("ui.error.no_test_selected"));
-                        else
-                            changeElementName(test.add(new Scenario(action)));
+                        configurator.createAction(action);
                     }
                 };
                 groupMenu1.add(new JMenuItem(a));
@@ -264,7 +249,7 @@ public class ConfiguratorForm
         }
     }
 
-    private void changeElementName(Object element)
+    public void editElementName(Object element)
     {
         tree.startEditingAtPath(model.getPathTo(element));
     }
@@ -281,72 +266,20 @@ public class ConfiguratorForm
     
     private void deleteElement()
     {
-        TreePath selected = tree.getSelectionPath();
-        if (selected == null)
+        Object obj = getSelection();
+        if (obj == null) {
             displayErrorMessage(L.get("ui.error.no_element_selected"));
-        
-        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(frame, 
-                L.get("ui.confirm_delete", selected.getLastPathComponent()), 
-                L.get("ui.confirm_delete_title"), 
-                JOptionPane.YES_NO_OPTION)) {
-            
-            editor.reset();
-            Object obj = selected.getLastPathComponent();
-            if (obj instanceof Scenario) {
-                Scenario s = (Scenario) obj;
-                s.getTest().remove(s);
-            }
-            if (obj instanceof Test) {
-                Test t = (Test) obj;
-                t.getGroup().remove(t);
-            }
         }
-    }
-    
-    private void moveScenario(int delta)
-    {
-        Scenario scenario = getSelectedScenario();
-        if (scenario == null)
-            displayErrorMessage(L.get("ui.error.no_scenario_selected"));
         else {
-            scenario.moveBy(delta);
-            selectElement(scenario);
-        }
-    }
-    
-    private void saveTests()
-    {
-        if (writer == null) {
-            JFileChooser fc = new JFileChooser(".");
-            if (fc.showSaveDialog(frame) != JFileChooser.APPROVE_OPTION)
-                return;
-            frame.setTitle(L.get("ui.title.file", fc.getSelectedFile().getName()));
-            writer = new XmlTestGroupWriter(fc.getSelectedFile().toString());
-        }
-        try {
-            writer.write(model.getRoot());
-        }
-        catch (DataException e) {
-            e.printStackTrace();
-            displayErrorMessage(e.getLocalizedMessage());
-        }
-    }
-
-    private void openTests()
-    {
-        JFileChooser fc = new JFileChooser(".");
-        if (fc.showOpenDialog(frame) != JFileChooser.APPROVE_OPTION)
-            return;
-        frame.setTitle(L.get("ui.title.file", fc.getSelectedFile().getName()));
-        XmlTestGroupReader reader = new XmlTestGroupReader(fc.getSelectedFile().toString());
-        try {
-            model.getRoot().clear();
-            reader.read(model.getRoot(), actions);
-            writer = new XmlTestGroupWriter(fc.getSelectedFile().toString());
-        }
-        catch (DataException e) {
-            e.printStackTrace();
-            displayErrorMessage(e.getLocalizedMessage());
+            if (JOptionPane.YES_OPTION == 
+                    JOptionPane.showConfirmDialog(frame, 
+                            L.get("ui.confirm_delete", obj), 
+                            L.get("ui.confirm_delete_title"), 
+                            JOptionPane.YES_NO_OPTION)) {
+                
+                editor.reset();
+                configurator.deleteElement(obj);
+            }
         }
     }
 
@@ -354,23 +287,50 @@ public class ConfiguratorForm
      * Displays error message to user with given text.
      * @param label localized text label with error text
      */
-    private void displayErrorMessage(String text)
+    public void displayErrorMessage(String text)
     {
         JOptionPane.showMessageDialog(frame, 
                 text, 
                 L.get("ui.error.title"), 
                 JOptionPane.ERROR_MESSAGE);
     }
-    
+
     public void show()
     {
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
-    private void selectElement(Object obj)
+    public void selectElement(Object obj)
     {
         tree.setSelectionPath(model.getPathTo(obj));
+    }
+
+    public File showSaveDialog()
+    {
+        JFileChooser fc = new JFileChooser(".");
+        if (fc.showSaveDialog(frame) != JFileChooser.APPROVE_OPTION)
+            return null;
+        else
+            return fc.getSelectedFile();
+    }
+
+    public File showOpenDialog()
+    {
+        JFileChooser fc = new JFileChooser(".");
+        if (fc.showOpenDialog(frame) != JFileChooser.APPROVE_OPTION)
+            return null;
+        else
+            return fc.getSelectedFile();
+    }
+
+    public void setTitle(String title)
+    {
+        frame.setTitle(title);
+    }
+
+    public void close()
+    {
+        frame.dispose();
     }
 }
 

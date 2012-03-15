@@ -16,9 +16,9 @@ import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
 import com.netcracker.tc.model.TestGroup;
 import com.netcracker.tc.model.Type;
-import com.netcracker.tc.model.types.BoolType;
-import com.netcracker.tc.model.types.IntType;
-import com.netcracker.tc.model.types.RefType;
+import com.netcracker.tc.types.standard.BoolType;
+import com.netcracker.tc.types.standard.IntType;
+import com.netcracker.tc.types.standard.RefType;
 
 public class XmlTestGroupReader implements TestGroupReader
 {

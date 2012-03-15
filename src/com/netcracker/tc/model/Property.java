@@ -24,24 +24,29 @@ public class Property
 
     private Property(Scenario scenario, 
             String name, String title, String description, 
-            Type type)
+            Type type, Object value)
     {
         this.scenario = scenario;
         this.title = title;
         this.name = name;
         this.description = description;
         this.type = type;
-        this.value = type.defaultValue();
+        this.value = value;
+    }
+
+    public Property(String name, String title, String description, Type type, Object value)
+    {
+        this(null, name, title, description, type, value);
     }
 
     public Property(String name, String title, String description, Type type)
     {
-        this(null, name, title, description, type);
+        this(null, name, title, description, type, type.defaultValue());
     }
-    
+
     Property(Scenario scenario, Property p)
     {
-        this(scenario, p.name, p.title, p.description, p.type);
+        this(scenario, p.name, p.title, p.description, p.type, p.value);
     }
 
     public Scenario getScenario()

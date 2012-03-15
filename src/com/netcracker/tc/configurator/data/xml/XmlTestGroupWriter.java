@@ -12,7 +12,7 @@ import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
 import com.netcracker.tc.model.TestGroup;
 import com.netcracker.tc.model.Type;
-import com.netcracker.tc.model.types.RefType;
+import com.netcracker.tc.types.standard.RefType;
 import com.netcracker.xml.Constructor;
 
 public class XmlTestGroupWriter implements TestGroupWriter

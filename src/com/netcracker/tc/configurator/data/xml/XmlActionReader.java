@@ -13,27 +13,38 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import com.netcracker.tc.configurator.data.ActionReader;
+import com.netcracker.tc.configurator.data.SchemaReader;
 import com.netcracker.tc.configurator.data.DataException;
 import com.netcracker.tc.model.Action;
 import com.netcracker.tc.model.ActionGroup;
 import com.netcracker.tc.model.Property;
 import com.netcracker.tc.model.Result;
 import com.netcracker.tc.model.Type;
-import com.netcracker.tc.model.types.BoolType;
-import com.netcracker.tc.model.types.EnumType;
-import com.netcracker.tc.model.types.IntType;
-import com.netcracker.tc.model.types.RefType;
-import com.netcracker.tc.model.types.SetType;
-import com.netcracker.tc.model.types.StringType;
+import com.netcracker.tc.types.standard.BoolType;
+import com.netcracker.tc.types.standard.EnumType;
+import com.netcracker.tc.types.standard.IntType;
+import com.netcracker.tc.types.standard.RefType;
+import com.netcracker.tc.types.standard.SetType;
+import com.netcracker.tc.types.standard.StringType;
 
-public class XmlActionReader implements ActionReader
+public class XmlActionReader implements SchemaReader
 {
     private final Document doc;
 
-    public XmlActionReader(String filename) throws SAXException, IOException, ParserConfigurationException
+    public XmlActionReader(String filename) throws DataException
     {
-        doc = load(filename);
+        try {
+            doc = load(filename);
+        }
+        catch (SAXException e) {
+            throw new DataException(e);
+        }
+        catch (IOException e) {
+            throw new DataException(e);
+        }
+        catch (ParserConfigurationException e) {
+            throw new DataException(e);
+        }
     }
     
     @Override
@@ -90,14 +101,16 @@ public class XmlActionReader implements ActionReader
             if (min.isEmpty() && max.isEmpty())
                 return new IntType();
             if (min.isEmpty())
-                return IntType.maxBy(Integer.parseInt(max));
+                return new IntType(Integer.MIN_VALUE, Integer.parseInt(max));
             if (max.isEmpty())
-                return IntType.minBy(Integer.parseInt(min));
+                return new IntType(Integer.parseInt(min), Integer.MAX_VALUE);
             else
                 return new IntType(Integer.parseInt(min), Integer.parseInt(max));
         }
         if ("ref".equals(type)) {
-            return new RefType(property.getAttribute("ref-type"));
+            return new RefType(
+                    property.getAttribute("ref-type"), 
+                    ! property.getAttribute("required").equals("false"));
         }
         if ("set".equals(type)) {
             String[] values = property.getAttribute("values").split(",");
@@ -108,11 +121,11 @@ public class XmlActionReader implements ActionReader
             String req = property.getAttribute("required");
             String patt = property.getAttribute("pattern");
             if (! patt.isEmpty())
-                return new StringType(patt);
+                return new StringType(false, 0, patt);
             else
                 return new StringType(
                         req.equalsIgnoreCase("true") || req.equalsIgnoreCase("yes"), 
-                        maxl.isEmpty() ? 0 : Integer.parseInt(maxl));
+                        maxl.isEmpty() ? 0 : Integer.parseInt(maxl), "");
         }
         else
             throw new DataException("Unknown property type: "+ type);

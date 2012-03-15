@@ -2,6 +2,8 @@ package com.netcracker.tc.model;
 
 /**
  * Parameter type with restrictions.
+ * Should be constant value,
+ * only getters for parameters are allowed.
  * 
  * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
  */
