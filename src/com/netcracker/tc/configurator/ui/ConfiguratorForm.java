@@ -110,6 +110,10 @@ public class ConfiguratorForm
             {{
                 add(new JMenu(L.get("ui.menu.file"))
                 {{
+                    add(new JMenuItem(new AbstractAction(L.get("ui.menu.file.new")) {
+                        public void actionPerformed(ActionEvent e) {
+                            configurator.newTests(); }}));
+                    
                     add(new JMenuItem(new AbstractAction(L.get("ui.menu.file.open")) {
                         {putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(
                                     Character.valueOf('o'), InputEvent.CTRL_DOWN_MASK));
@@ -206,7 +210,7 @@ public class ConfiguratorForm
                 : selection.getLastPathComponent();
     }
     
-    private void selectionChanged()
+    public void selectionChanged()
     {
         Object obj = getSelection();
         

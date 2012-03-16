@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE tests SYSTEM "tests.dtd">
+<tests>
+  <test title="Persons">
+    <scenario id="scenario0" title="Generate random persons" type="com.netcracker.tc.tests.examples.Person.generateRandomPersons"/>
+    <scenario id="scenario1" title="Create" type="com.netcracker.tc.tests.examples.Person.create">
+      <property name="firstName" value="Aleksej"/>
+      <property name="lastName" value="Doe"/>
+      <property name="age" value="21"/>
+      <property name="gender" value="MALE"/>
+    </scenario>
+    <scenario id="scenario2" title="Delete" type="com.netcracker.tc.tests.examples.Person.delete">
+      <property name="person" value="scenario0.secondPerson"/>
+    </scenario>
+  </test>
+  <test title="Switchs">
+    <scenario id="scenario0" title="Create" type="com.netcracker.tc.tests.examples.Switch.create">
+      <property name="name" value=""/>
+      <property name="portCount" value="10"/>
+    </scenario>
+    <scenario id="scenario1" title="Delete port" type="com.netcracker.tc.tests.examples.Switch.deletePort">
+      <property name="switch" value="scenario0.returnValue"/>
+      <property name="portId" value="3"/>
+      <property name="deadPort" value="true"/>
+    </scenario>
+    <scenario id="scenario2" title="Delete switch" type="com.netcracker.tc.tests.examples.Switch.deleteSwitch">
+      <property name="switch" value="scenario0.returnValue"/>
+    </scenario>
+  </test>
+</tests>

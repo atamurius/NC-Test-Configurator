@@ -1,9 +1,17 @@
 package com.netcracker.tc.configurator.ui;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.netcracker.tc.configurator.data.AnnotationSchemaReader;
 import com.netcracker.tc.configurator.data.DataException;
+import com.netcracker.tc.configurator.data.TestGroupReader;
 import com.netcracker.tc.configurator.data.TestGroupWriter;
 import com.netcracker.tc.configurator.data.xml.XmlTestGroupReader;
 import com.netcracker.tc.configurator.data.xml.XmlTestGroupWriter;
@@ -12,18 +20,7 @@ import com.netcracker.tc.model.ActionGroup;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
 import com.netcracker.tc.model.TestGroup;
-import com.netcracker.tc.types.standard.BoolType;
-import com.netcracker.tc.types.standard.EnumType;
-import com.netcracker.tc.types.standard.IntType;
-import com.netcracker.tc.types.standard.RefType;
-import com.netcracker.tc.types.standard.SetType;
-import com.netcracker.tc.types.standard.StringType;
-import com.netcracker.tc.types.standard.ui.BoolWidget;
-import com.netcracker.tc.types.standard.ui.EnumWidget;
-import com.netcracker.tc.types.standard.ui.IntWidget;
-import com.netcracker.tc.types.standard.ui.RefWidget;
-import com.netcracker.tc.types.standard.ui.SetWidget;
-import com.netcracker.tc.types.standard.ui.StringWidget;
+import com.netcracker.util.ClassPath;
 import com.netcracker.util.Label;
 
 public class Configurator
@@ -34,37 +31,43 @@ public class Configurator
     private final TestGroup tests = new TestGroup();
     
     private TestGroupWriter writer;
+    private TestGroupReader reader;
     private ActionGroup actions;
+
+    private String currentFile;
+
 
     public Configurator()
     {
-        EditorRegistry widgetRegistry = new EditorRegistry();
+        EditorRegistry widgets = new EditorRegistry();
+        XmlTestGroupReader reader = new XmlTestGroupReader();
+        XmlTestGroupWriter writer = new XmlTestGroupWriter();
+        AnnotationSchemaReader schema = new AnnotationSchemaReader();
         
-        widgetRegistry.register(StringType.class, StringWidget.class);
-        widgetRegistry.register(IntType.class, IntWidget.class);
-        widgetRegistry.register(BoolType.class, BoolWidget.class);
-        widgetRegistry.register(EnumType.class, EnumWidget.class);
-        widgetRegistry.register(SetType.class, SetWidget.class);
-        widgetRegistry.register(RefType.class, RefWidget.class);
-
-        form = new ConfiguratorForm(this, widgetRegistry, tests);
-
         try {
-            actions = new AnnotationSchemaReader(
-                    "com.netcracker.tc.tests.examples.Person$Create",
-                    "com.netcracker.tc.tests.examples.Person$Delete",
-                    "com.netcracker.tc.tests.examples.Switch$Create",
-                    "com.netcracker.tc.tests.examples.Switch$DeletePort",
-                    "com.netcracker.tc.tests.examples.Switch$DeleteSwitch"
-                    ).registerStandard().
-                      readActionGroup();
-            form.addActions(actions);
+            for (String typeName : ClassPath.enumerateClassesAt(
+                    new File("bin"), "com.netcracker.tc.types.standard")) {
+                
+                Class<?> type = Class.forName(typeName);
+                widgets.register(type);
+                reader.register(type);
+                writer.register(type);
+                schema.register(type);
+            }
+            for (String typeName : ClassPath.enumerateClassesAt(
+                    new File("bin"), "com.netcracker.tc.tests.examples"))
+                schema.analyze(Class.forName(typeName));
         }
-        catch (DataException e) {
+        catch (Exception e) {
             e.printStackTrace();
-            form.displayErrorMessage(e.getLocalizedMessage());
             System.exit(0);
         }
+        this.writer = writer;
+        this.reader = reader;
+        this.actions = schema.getActions();
+
+        form = new ConfiguratorForm(this, widgets, tests);
+        form.addActions(actions);
         
         form.show();
     }
@@ -95,14 +98,25 @@ public class Configurator
     
     public void saveTests() throws DataException
     {
-        if (writer == null) {
+        if (currentFile == null) {
             File file = form.showSaveDialog();
             if (file == null)
                 return;
             form.setTitle(L.get("ui.title.file", file.getName()));
-            writer = new XmlTestGroupWriter(file.toString());
+            currentFile = file.toString();
         }
-        writer.write(tests);
+        try {
+            OutputStream out = new BufferedOutputStream(new FileOutputStream(currentFile));
+            try {
+                writer.write(out, tests);
+            }
+            finally {
+                out.close();
+            }
+        }
+        catch (IOException e) {
+            throw new DataException(e);
+        }
     }
 
     public void openTests() throws DataException
@@ -111,10 +125,21 @@ public class Configurator
         if (file == null)
             return;
         form.setTitle(L.get("ui.title.file", file.getName()));
-        XmlTestGroupReader reader = new XmlTestGroupReader(file.toString());
-        tests.clear();
-        reader.read(tests, actions);
-        writer = new XmlTestGroupWriter(file.toString());
+        currentFile = file.getName();
+        try {
+            InputStream in = new BufferedInputStream(new FileInputStream(currentFile));
+            try {
+                tests.clear();
+                reader.read(in, tests, actions);
+                form.selectionChanged();
+            }
+            finally {
+                in.close();
+            }
+        }
+        catch (IOException e) {
+            throw new DataException(e);
+        }
     }
 
     public void createAction(Action action)
@@ -144,5 +169,13 @@ public class Configurator
             Test t = (Test) obj;
             t.getGroup().remove(t);
         }
+    }
+
+    public void newTests()
+    {
+        currentFile = null;
+        form.setTitle(L.get("ui.title"));
+        tests.clear();
+        form.selectionChanged();
     }
 }

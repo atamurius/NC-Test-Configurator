@@ -3,7 +3,10 @@ package com.netcracker.tc.configurator.data.xml;
 import static com.netcracker.xml.Xml.elements;
 import static com.netcracker.xml.Xml.load;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Element;
@@ -15,25 +18,22 @@ import com.netcracker.tc.model.Property;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
 import com.netcracker.tc.model.TestGroup;
-import com.netcracker.tc.model.Type;
-import com.netcracker.tc.types.standard.BoolType;
-import com.netcracker.tc.types.standard.IntType;
-import com.netcracker.tc.types.standard.RefType;
 
 public class XmlTestGroupReader implements TestGroupReader
 {
-    private final String filename;
+    private final List<ValueReader> readers = new ArrayList<ValueReader>();
 
-    public XmlTestGroupReader(String filename)
+    public void register(Class<?> type) throws InstantiationException, IllegalAccessException
     {
-        this.filename = filename;
+        if (ValueReader.class.isAssignableFrom(type))
+            readers.add(type.asSubclass(ValueReader.class).newInstance());
     }
 
     @Override
-    public void read(TestGroup testGroup, ActionGroup actions) throws DataException
+    public void read(InputStream in, TestGroup testGroup, ActionGroup actions) throws DataException
     {
         try {
-            Element testsE = load(filename).getDocumentElement(); 
+            Element testsE = load(in).getDocumentElement(); 
             
             for (Element testE : elements(testsE, "/tests/test")) {
                 Test test = new Test(testE.getAttribute("title"));
@@ -49,30 +49,27 @@ public class XmlTestGroupReader implements TestGroupReader
                     
                     for (Element propE : elements(scE, "property")) {
                         Property prop = scenario.properties().get(propE.getAttribute("name"));
-                        prop.setValue(readValue(prop.getType(), propE, scenarios));
+                        readValue(prop, propE, scenarios);
                     }
                 }
             }
+        }
+        catch (DataException e) {
+            throw e;
         }
         catch (Exception e) {
             throw new DataException(e);
         }
     }
 
-    private Object readValue(Type type, Element prop, Map<String, Scenario> scenarios)
+    private void readValue(Property prop, Element el, Map<String, Scenario> scenarios) throws DataException
     {
-        if (type instanceof BoolType) {
-            return Boolean.valueOf(prop.getAttribute("value"));
+        for (ValueReader reader : readers) {
+            if (reader.readValue(prop, el, scenarios))
+                return;
         }
-        if (type instanceof IntType) {
-            return Integer.parseInt(prop.getAttribute("value"));
-        }
-        if (type instanceof RefType) {
-            String[] parts = prop.getAttribute("value").split("\\.");
-            return scenarios.get(parts[0]).results().get(parts[1]);
-        }
-        else
-            return prop.getAttribute("value");
+        // default:
+        prop.setValue(prop.getType().valueOf(el.getAttribute("value")));
     }
 }
 

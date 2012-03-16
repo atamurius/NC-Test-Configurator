@@ -34,4 +34,10 @@ public class ActionGroup
                     return action;
         return null;
     }
+    
+    @Override
+    public String toString()
+    {
+        return getClass().getName() + actions;
+    }
 }

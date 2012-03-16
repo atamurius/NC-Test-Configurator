@@ -45,4 +45,10 @@ public class Action
     {
         return title;
     }
+    
+    @Override
+    public String toString()
+    {
+        return getClass().getName() + "(" + properties + ", " + results + ")";
+    }
 }

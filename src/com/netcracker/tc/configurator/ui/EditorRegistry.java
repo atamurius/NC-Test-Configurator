@@ -4,15 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.netcracker.tc.model.Property;
-import com.netcracker.tc.model.Type;
 
 public class EditorRegistry
 {
     private Map<Class<?>,Class<?>> reg = new HashMap<Class<?>, Class<?>>();
     
-    public void register(Class<? extends Type> ptype, Class<? extends EditorWidget> wtype)
+    public void register(Class<?> type)
     {
-        reg.put(ptype, wtype);
+        if (EditorWidget.class.isAssignableFrom(type)) {
+            try {
+                EditorWidget widget = type.asSubclass(EditorWidget.class).newInstance();
+                reg.put(widget.getType(), widget.getClass());
+            }
+            catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
     }
     
     public EditorWidget editorFor(Property property)

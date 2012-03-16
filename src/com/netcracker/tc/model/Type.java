@@ -21,4 +21,12 @@ public interface Type
      * @return default value
      */
     Object defaultValue();
+    
+    /**
+     * Convert string to value of this type.
+     * Used for scenario default value reading.
+     * @param value
+     * @return value of current type
+     */
+    Object valueOf(String value);
 }

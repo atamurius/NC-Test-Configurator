@@ -8,21 +8,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Scenarios,
- * merks class, that contains {@link Scenario}s as
- * public non-static methods,
- * marked as {@link Scenario}
+ * Marks class as container for multiple {@link Output}s
+ * of {@link Scenario},
+ * each output of this result can be referenced independently.
  * 
  * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({TYPE})
-public @interface Scenarios
+public @interface Outputs
 {
-    /**
-     * Scenarios group title.
-     * Default value — class short name.
-     */
-    String value() default "";
+
 }

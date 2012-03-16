@@ -121,8 +121,9 @@ public class ScenarioEditor extends JScrollPane implements Observer
         panel.setVisible(false);
         panel.removeAll();
         fields.clear();
-        if (scenario != null)
+        if (scenario != null) {
             scenario.getTest().getGroup().deleteObserver(this);
+        }
     }
     
     private void addField(Field f)

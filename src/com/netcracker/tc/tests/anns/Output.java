@@ -21,6 +21,7 @@ public @interface Output
 {
     /**
      * Output title, default is field name.
+     * For {@link Scenario#output} this value must be set.
      */
     String value() default "";
     

@@ -57,9 +57,9 @@ public class TestGroup
                 tests.hasNext();) {
             Test test = tests.next();
             tests.remove();
-            notify(test, REMOVED);
             test.setGroup(null);
         }
+        notify(this, REMOVED);
     }
     
     /**

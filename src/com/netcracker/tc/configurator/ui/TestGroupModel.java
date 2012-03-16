@@ -116,7 +116,8 @@ public class TestGroupModel implements TreeModel, Observer
             case ADDED:
             case REMOVED:
             {
-                TreeModelEvent e = new TreeModelEvent(this, getPathTo(source).getParentPath());
+                TreeModelEvent e = new TreeModelEvent(this,
+                        source == tests ? getPathTo(tests) : getPathTo(source).getParentPath());
                 for (TreeModelListener l : listeners)
                     l.treeStructureChanged(e);
             }
