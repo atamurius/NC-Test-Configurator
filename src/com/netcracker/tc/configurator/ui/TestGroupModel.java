@@ -9,23 +9,23 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import com.netcracker.tc.model.Observer;
-import com.netcracker.tc.model.Property;
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
-import com.netcracker.tc.model.TestGroup;
+import com.netcracker.tc.model.Configuration;
 
 public class TestGroupModel implements TreeModel, Observer
 {
     private static final long serialVersionUID = 1L;
 
-    private final TestGroup tests;
+    private final Configuration tests;
     
     public TestGroupModel()
     {
-        this(new TestGroup());
+        this(new Configuration());
     }
 
-    public TestGroupModel(TestGroup tests)
+    public TestGroupModel(Configuration tests)
     {
         this.tests = tests;
         tests.addObserver(this);
@@ -88,7 +88,7 @@ public class TestGroupModel implements TreeModel, Observer
     }
 
     @Override
-    public TestGroup getRoot()
+    public Configuration getRoot()
     {
         return tests;
     }
@@ -140,8 +140,8 @@ public class TestGroupModel implements TreeModel, Observer
         if (source instanceof Test)
             return getPathTo(tests).pathByAddingChild(source);
         if (source instanceof Scenario)
-            return getPathTo(((Scenario) source).getTest()).pathByAddingChild(source);
+            return getPathTo(((Scenario) source).getParent()).pathByAddingChild(source);
         else // Property
-            return getPathTo(((Property) source).getScenario());
+            return getPathTo(((Parameter) source).getScenario());
     }
 }

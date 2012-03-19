@@ -28,10 +28,10 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import com.netcracker.tc.configurator.data.DataException;
-import com.netcracker.tc.model.Action;
-import com.netcracker.tc.model.ActionGroup;
+import com.netcracker.tc.model.Schema;
+import com.netcracker.tc.model.Schemas;
 import com.netcracker.tc.model.Scenario;
-import com.netcracker.tc.model.TestGroup;
+import com.netcracker.tc.model.Configuration;
 import com.netcracker.util.Label;
 
 /**
@@ -90,7 +90,7 @@ public class ConfiguratorForm
      * @param configurator2 
      */
     @SuppressWarnings("serial")
-    public ConfiguratorForm(Configurator conf, final EditorRegistry widgetRegistry, final TestGroup tests)
+    public ConfiguratorForm(Configurator conf, final EditorRegistry widgetRegistry, final Configuration tests)
     {
         this.configurator = conf;
         
@@ -230,7 +230,7 @@ public class ConfiguratorForm
      * @param type name to add
      */
     @SuppressWarnings("serial")
-    public void addActions(ActionGroup actions)
+    public void addActions(Schemas actions)
     {
         for (String group : actions.groups()) {
             JMenu groupMenu1 = new JMenu(group);
@@ -239,7 +239,7 @@ public class ConfiguratorForm
             JMenu groupMenu2 = new JMenu(group);
             popupNew.add(groupMenu2);
             
-            for (final Action action : actions.actions(group)) {
+            for (final Schema action : actions.group(group)) {
                 AbstractAction a = new AbstractAction(action.getTitle()) {
                     @Override
                     public void actionPerformed(ActionEvent e)

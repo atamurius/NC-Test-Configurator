@@ -3,7 +3,7 @@ package com.netcracker.tc.configurator.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.netcracker.tc.model.Property;
+import com.netcracker.tc.model.Parameter;
 
 public class EditorRegistry
 {
@@ -22,7 +22,7 @@ public class EditorRegistry
         }
     }
     
-    public EditorWidget editorFor(Property property)
+    public EditorWidget editorFor(Parameter property)
     {
         Class<?> wtype = reg.get(property.getType().getClass());
         if (wtype == null)

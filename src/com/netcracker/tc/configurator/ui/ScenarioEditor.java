@@ -15,7 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 
 import com.netcracker.tc.model.Observer;
-import com.netcracker.tc.model.Property;
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Scenario;
 
 // TODO: one editor for one scenario or reset it for current edited scenario?
@@ -26,10 +26,10 @@ public class ScenarioEditor extends JScrollPane implements Observer
     private final class Field
     {
         JLabel errorField = new JLabel();
-        Property property;
+        Parameter property;
         EditorWidget editor;
 
-        Field(Property property)
+        Field(Parameter property)
         {
             this.property = property;
             editor = registry.editorFor(property);
@@ -57,7 +57,7 @@ public class ScenarioEditor extends JScrollPane implements Observer
     }
     
     private final JPanel panel;
-    private final Map<Property,Field> fields = new HashMap<Property,Field>();
+    private final Map<Parameter,Field> fields = new HashMap<Parameter,Field>();
     private final EditorRegistry registry;
     private Scenario scenario;
     private JLabel header = new JLabel();
@@ -88,8 +88,8 @@ public class ScenarioEditor extends JScrollPane implements Observer
         
         addHeader();
         
-        scenario.getTest().getGroup().addObserver(this);
-        for (Property prop : scenario.properties().values()) {
+        scenario.getParent().getParent().addObserver(this);
+        for (Parameter prop : scenario.properties().values()) {
             Field field = new Field(prop);
             fields.put(prop, field);
             addField(field);
@@ -113,7 +113,7 @@ public class ScenarioEditor extends JScrollPane implements Observer
 
     private void updateHeader()
     {
-        header.setText(scenario.getTest().getTitle() + ": " + scenario.getTitle());
+        header.setText(scenario.getParent().getTitle() + ": " + scenario.getTitle());
     }
 
     private void begin()
@@ -122,7 +122,7 @@ public class ScenarioEditor extends JScrollPane implements Observer
         panel.removeAll();
         fields.clear();
         if (scenario != null) {
-            scenario.getTest().getGroup().deleteObserver(this);
+            scenario.getParent().getParent().deleteObserver(this);
         }
     }
     

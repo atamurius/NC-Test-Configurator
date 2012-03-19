@@ -12,14 +12,14 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import com.netcracker.tc.configurator.data.DataException;
-import com.netcracker.tc.configurator.data.TestGroupReader;
-import com.netcracker.tc.model.ActionGroup;
-import com.netcracker.tc.model.Property;
+import com.netcracker.tc.configurator.data.ConfigurationReader;
+import com.netcracker.tc.model.Schemas;
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
-import com.netcracker.tc.model.TestGroup;
+import com.netcracker.tc.model.Configuration;
 
-public class XmlTestGroupReader implements TestGroupReader
+public class XmlTestGroupReader implements ConfigurationReader
 {
     private final List<ValueReader> readers = new ArrayList<ValueReader>();
 
@@ -30,7 +30,7 @@ public class XmlTestGroupReader implements TestGroupReader
     }
 
     @Override
-    public void read(InputStream in, TestGroup testGroup, ActionGroup actions) throws DataException
+    public void read(InputStream in, Configuration testGroup, Schemas actions) throws DataException
     {
         try {
             Element testsE = load(in).getDocumentElement(); 
@@ -48,7 +48,7 @@ public class XmlTestGroupReader implements TestGroupReader
                     scenarios.put(id, scenario);
                     
                     for (Element propE : elements(scE, "property")) {
-                        Property prop = scenario.properties().get(propE.getAttribute("name"));
+                        Parameter prop = scenario.properties().get(propE.getAttribute("name"));
                         readValue(prop, propE, scenarios);
                     }
                 }
@@ -62,7 +62,7 @@ public class XmlTestGroupReader implements TestGroupReader
         }
     }
 
-    private void readValue(Property prop, Element el, Map<String, Scenario> scenarios) throws DataException
+    private void readValue(Parameter prop, Element el, Map<String, Scenario> scenarios) throws DataException
     {
         for (ValueReader reader : readers) {
             if (reader.readValue(prop, el, scenarios))

@@ -2,11 +2,11 @@ package com.netcracker.tc.configurator.ui;
 
 import java.awt.Component;
 
-import com.netcracker.tc.model.Property;
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Type;
 
 /**
- * {@link Property} editor widget.
+ * {@link Parameter} editor widget.
  * On editor value changed or lost focus widget must
  * update property value.
  * On property value changed widget will be updated,
@@ -25,7 +25,7 @@ public interface EditorWidget
      * Set property to edit on changed.
      * @param property
      */
-    void setProperty(Property property);
+    void setProperty(Parameter property);
     
     /**
      * Root editor component.

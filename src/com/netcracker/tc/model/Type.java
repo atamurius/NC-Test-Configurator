@@ -14,7 +14,7 @@ public interface Type
      * @param value to check
      * @return null if value is valid, or problem description otherwise
      */
-    String validate(Property property);
+    String validate(Parameter property);
     
     /**
      * Default type value.

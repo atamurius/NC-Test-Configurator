@@ -5,7 +5,7 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import com.netcracker.tc.configurator.data.DataException;
-import com.netcracker.tc.model.Property;
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Scenario;
 
 /**
@@ -24,6 +24,6 @@ public interface ValueReader
      * @return true if reading was successfull
      * @throws DataException if value has wrong format
      */
-    boolean readValue(Property prop, Element elem, Map<String, Scenario> scenarios) 
+    boolean readValue(Parameter prop, Element elem, Map<String, Scenario> scenarios) 
             throws DataException;
 }

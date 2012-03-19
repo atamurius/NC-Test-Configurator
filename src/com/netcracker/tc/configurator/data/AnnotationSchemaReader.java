@@ -9,10 +9,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.netcracker.tc.model.Action;
-import com.netcracker.tc.model.ActionGroup;
-import com.netcracker.tc.model.Property;
-import com.netcracker.tc.model.Result;
+import com.netcracker.tc.model.Schema;
+import com.netcracker.tc.model.Schemas;
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Type;
 import com.netcracker.tc.tests.anns.Output;
 import com.netcracker.tc.tests.anns.Outputs;
@@ -21,6 +20,18 @@ import com.netcracker.tc.tests.anns.Params;
 import com.netcracker.tc.tests.anns.Scenario;
 import com.netcracker.tc.tests.anns.Scenarios;
 
+/**
+ * This class represents logic for analyzing test scenario classes and
+ * collect it's information into {@link Schemas}.
+ * <p>
+ * Test cases class must be annotated with {@link Scenarios},
+ * public non-static methods of this class, annotated with {@link Scenario}
+ * will be mapped into {@link Schema} object.
+ * 
+ * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
+ * 
+ * @see com.netcracker.tc.tests.anns
+ */
 public class AnnotationSchemaReader
 {
     private final List<TypeReader> readers = new ArrayList<TypeReader>();
@@ -31,7 +42,7 @@ public class AnnotationSchemaReader
             readers.add(type.asSubclass(TypeReader.class).newInstance());
     }
     
-    private final ActionGroup actions = new ActionGroup();
+    private final Schemas actions = new Schemas();
     
     public void analyze(Class<?> type)
     {
@@ -44,9 +55,9 @@ public class AnnotationSchemaReader
         }
     }
 
-    private Action getAction(Method method)
+    private Schema getAction(Method method)
     {
-        return new Action(
+        return new Schema(
                 method.getDeclaringClass().getName() + "." + method.getName(), 
                 getTitle(method.getAnnotation(Scenario.class).value(), method.getName()), 
                 getScenatioParameters(method), 
@@ -54,7 +65,7 @@ public class AnnotationSchemaReader
     }
 
     @SuppressWarnings("unchecked")
-    private List<Result> getScenarioOutputs(Method method)
+    private List<com.netcracker.tc.model.Output> getScenarioOutputs(Method method)
     {
         if (method.getReturnType() == Void.TYPE)
             return Collections.EMPTY_LIST;
@@ -63,21 +74,21 @@ public class AnnotationSchemaReader
             return getOutputsObject(method.getReturnType());
         else {
             Output out = method.getAnnotation(Scenario.class).output();
-            return Collections.singletonList(new Result(
+            return Collections.singletonList(new com.netcracker.tc.model.Output(
                     "returnValue", 
                     out.value(), 
                     out.type().isEmpty() ? method.getReturnType().getName() : out.type()));
         }
     }
 
-    private List<Result> getOutputsObject(Class<?> type)
+    private List<com.netcracker.tc.model.Output> getOutputsObject(Class<?> type)
     {
-        List<Result> res = new ArrayList<Result>();
+        List<com.netcracker.tc.model.Output> res = new ArrayList<com.netcracker.tc.model.Output>();
 
         for (Field field : type.getFields())
             if (field.isAnnotationPresent(Output.class)) {
                 Output out = field.getAnnotation(Output.class);
-                res.add(new Result(
+                res.add(new com.netcracker.tc.model.Output(
                         field.getName(), 
                         getTitle(out.value(), field.getName()), 
                         out.type().isEmpty() ? field.getClass().getName() : out.type()));
@@ -87,7 +98,7 @@ public class AnnotationSchemaReader
     }
 
     @SuppressWarnings("unchecked")
-    private List<Property> getScenatioParameters(Method scenario)
+    private List<Parameter> getScenatioParameters(Method scenario)
     {
         if (scenario.getParameterTypes().length == 0)
             return Collections.EMPTY_LIST;
@@ -100,9 +111,9 @@ public class AnnotationSchemaReader
             return getParamParameters(scenario);
     }
 
-    private List<Property> getParamParameters(Method scenario)
+    private List<Parameter> getParamParameters(Method scenario)
     {
-        List<Property> props = new ArrayList<Property>();
+        List<Parameter> props = new ArrayList<Parameter>();
         
         Class<?>[] types = scenario.getParameterTypes();
         Annotation[][] anns = scenario.getParameterAnnotations();
@@ -126,9 +137,9 @@ public class AnnotationSchemaReader
         return null;
     }
 
-    private List<Property> getFieldParameters(Class<?> type)
+    private List<Parameter> getFieldParameters(Class<?> type)
     {
-        List<Property> props = new ArrayList<Property>();
+        List<Parameter> props = new ArrayList<Parameter>();
 
         for (Field field : type.getFields())
             if (field.isAnnotationPresent(Param.class)) {
@@ -141,14 +152,14 @@ public class AnnotationSchemaReader
         return props;
     }
 
-    private Property getParameter(String name, Class<?> type, Annotation[] annotations)
+    private Parameter getParameter(String name, Class<?> type, Annotation[] annotations)
     {
         Param param = findAnnotation(annotations, Param.class);
         Type pType = readType(name, type, annotations);
         Object value = (param.defValue().equals(Param.VALUE_NONE))
                 ? pType.defaultValue()
                 : pType.valueOf(param.defValue());
-        return new Property(
+        return new Parameter(
                 name, 
                 getTitle(param.title(), name), 
                 param.description(), 
@@ -186,7 +197,7 @@ public class AnnotationSchemaReader
         return sb.toString();
     }
 
-    public ActionGroup getActions()
+    public Schemas getActions()
     {
         return actions;
     }

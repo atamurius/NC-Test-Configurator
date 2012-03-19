@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.netcracker.tc.configurator.data.DataException;
-import com.netcracker.tc.configurator.data.TestGroupWriter;
-import com.netcracker.tc.model.Property;
+import com.netcracker.tc.configurator.data.ConfigurationWriter;
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
-import com.netcracker.tc.model.TestGroup;
+import com.netcracker.tc.model.Configuration;
 import com.netcracker.tc.model.Type;
 import com.netcracker.xml.Constructor;
 
-public class XmlTestGroupWriter implements TestGroupWriter
+public class XmlTestGroupWriter implements ConfigurationWriter
 {
     private final List<ValueWriter> writers = new ArrayList<ValueWriter>();
 
@@ -24,7 +24,7 @@ public class XmlTestGroupWriter implements TestGroupWriter
     }
     
     @Override
-    public void write(OutputStream out, TestGroup testGroup) throws DataException
+    public void write(OutputStream out, Configuration testGroup) throws DataException
     {
         try {
             Constructor xml = new Constructor().node("tests");
@@ -35,8 +35,8 @@ public class XmlTestGroupWriter implements TestGroupWriter
                     xml.node("scenario")
                        .attr("id","scenario"+ (index++))
                        .attr("title", scenario.getTitle())
-                       .attr("type", scenario.getPrototype().getName());
-                    for (Property prop : scenario.properties().values()) {
+                       .attr("type", scenario.getSchema().getName());
+                    for (Parameter prop : scenario.properties().values()) {
                         xml.node("property")
                            .attr("name", prop.getName());
                         writeValue(xml, prop.getType(), prop.getValue());

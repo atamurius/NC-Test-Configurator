@@ -11,15 +11,15 @@ import java.io.OutputStream;
 
 import com.netcracker.tc.configurator.data.AnnotationSchemaReader;
 import com.netcracker.tc.configurator.data.DataException;
-import com.netcracker.tc.configurator.data.TestGroupReader;
-import com.netcracker.tc.configurator.data.TestGroupWriter;
+import com.netcracker.tc.configurator.data.ConfigurationReader;
+import com.netcracker.tc.configurator.data.ConfigurationWriter;
 import com.netcracker.tc.configurator.data.xml.XmlTestGroupReader;
 import com.netcracker.tc.configurator.data.xml.XmlTestGroupWriter;
-import com.netcracker.tc.model.Action;
-import com.netcracker.tc.model.ActionGroup;
+import com.netcracker.tc.model.Schema;
+import com.netcracker.tc.model.Schemas;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
-import com.netcracker.tc.model.TestGroup;
+import com.netcracker.tc.model.Configuration;
 import com.netcracker.util.ClassPath;
 import com.netcracker.util.Label;
 
@@ -28,11 +28,11 @@ public class Configurator
     private final Label.Bundle L = Label.getBundle("ui");
 
     private final ConfiguratorForm form;
-    private final TestGroup tests = new TestGroup();
+    private final Configuration tests = new Configuration();
     
-    private TestGroupWriter writer;
-    private TestGroupReader reader;
-    private ActionGroup actions;
+    private ConfigurationWriter writer;
+    private ConfigurationReader reader;
+    private Schemas actions;
 
     private String currentFile;
 
@@ -142,11 +142,11 @@ public class Configurator
         }
     }
 
-    public void createAction(Action action)
+    public void createAction(Schema action)
     {
         Object selected = form.getSelection();
         Test test = selected instanceof Scenario 
-                ? ((Scenario) selected).getTest() 
+                ? ((Scenario) selected).getParent() 
                 : (Test) selected; 
         if (test == null)
             form.displayErrorMessage(L.get("ui.error.no_test_selected"));
@@ -163,11 +163,11 @@ public class Configurator
     {
         if (obj instanceof Scenario) {
             Scenario s = (Scenario) obj;
-            s.getTest().remove(s);
+            s.getParent().remove(s);
         }
         if (obj instanceof Test) {
             Test t = (Test) obj;
-            t.getGroup().remove(t);
+            t.getParent().remove(t);
         }
     }
 

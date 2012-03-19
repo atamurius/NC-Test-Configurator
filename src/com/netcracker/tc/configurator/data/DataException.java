@@ -1,5 +1,13 @@
 package com.netcracker.tc.configurator.data;
 
+/**
+ * Exception while reading or storing test configuration.
+ * 
+ * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
+ * 
+ * @see ConfigurationReader
+ * @see ConfigurationWriter
+ */
 public class DataException extends Exception
 {
     private static final long serialVersionUID = 1L;

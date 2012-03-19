@@ -9,35 +9,27 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Collection of test steps,
- * all steps would execute sequentially and thus 
- * can refer to previous step within the same test.
+ * One test case configuration, consists of test scenarios.
+ * All scenarios would execute sequentially and thus 
+ * can refer to previous scenarios within the same test.
  * 
  * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
  */
 public class Test
 {
-    /**
-     * Test case title, for humans.
-     */
     private String title;
     
-    /**
-     * List of test case actions.
-     */
-    final List<Scenario> steps = new ArrayList<Scenario>();
-    private final List<Scenario> _steps = Collections.unmodifiableList(steps);
+    final List<Scenario> scenarios = new ArrayList<Scenario>();
+    private final List<Scenario> scenariosView = Collections.unmodifiableList(scenarios);
 
     /**
-     * Container test group of current test.
+     * Root configuration object.
      */
-    private TestGroup group;
+    private Configuration root;
 
     /**
-     * Creates new test withing given group.
-     * Constructor is called from {@link TestGroup#addTest(String)}
-     * @param group
-     * @param title
+     * Creates new unbound test.
+     * @param title title of test case
      */
     public Test(String title)
     {
@@ -45,28 +37,27 @@ public class Test
     }
     
     /**
-     * Create new step of this test.
-     * @param title of test
-     * @param prototype of test
-     * @return step created
+     * Adds new scenario to test case
+     * @param scenario
+     * @return added scenario object
      */
     public Scenario add(Scenario scenario)
     {
-        steps.add(scenario);
-        scenario.setTest(this);
-        getGroup().notify(scenario, ADDED);
+        scenarios.add(scenario);
+        scenario.bind(this);
+        getParent().notify(scenario, ADDED);
         return scenario;
     }
     
     /**
-     * Remove step from test, step if not valid after that.
-     * @param step to remove
+     * Remove scenario from test
+     * @param scenario to remove
      */
-    public void remove(Scenario step)
+    public void remove(Scenario scenario)
     {
-        steps.remove(step);
-        getGroup().notify(step, REMOVED);
-        step.setTest(null);
+        scenarios.remove(scenario);
+        root.notify(scenario, REMOVED);
+        scenario.bind(null);
     }
 
     /**
@@ -85,7 +76,7 @@ public class Test
     public void setTitle(String title)
     {
         this.title = title;
-        getGroup().notify(this, CHANGED);
+        getParent().notify(this, CHANGED);
     }
 
     /**
@@ -94,7 +85,7 @@ public class Test
      */
     public List<Scenario> scenarios()
     {
-        return _steps;
+        return scenariosView;
     }
     
     @Override
@@ -103,21 +94,42 @@ public class Test
         return title;
     }
 
-    public TestGroup getGroup()
+    /**
+     * Gets parent configuration, containing this test case
+     */
+    public Configuration getParent()
     {
-        return group;
+        return root;
     }
 
-    void setGroup(TestGroup testGroup)
+    /**
+     * Binds test case to configuration
+     */
+    void bind(Configuration conf)
     {
-        this.group = testGroup;
+        this.root = conf;
     }
 
+    /**
+     * Checks if all test case scenarios has valid parameter values
+     * @return this if test case is valid
+     */
     public boolean isValid()
     {
-        for (Scenario s : steps)
+        for (Scenario s : scenarios)
             if (! s.isValid())
                 return false;
         return true;
+    }
+
+    /**
+     * Notify all observers about event of source object.
+     * @param src source of event
+     * @param event type
+     */
+    void notify(Object src, Observer.Event event)
+    {
+        if (root != null)
+            root.notify(src, event);
     }
 }
