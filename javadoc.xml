@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="package" author="true" classpath="." destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="com.netcracker.tc.types.standard.num,com.netcracker.tc.configurator.ui,com.netcracker.tc.types.standard.set,com.netcracker.tc.types.standard.bool,com.netcracker.tc.tests.anns,com.netcracker.tc.types.standard.enumeration,com.netcracker.tc.model,com.netcracker.tc.types.standard.ref,com.netcracker.tc.tests.examples,com.netcracker.xml,com.netcracker.util,com.netcracker.tc.types.standard.string,com.netcracker.tc.configurator.data.xml,com.netcracker.tc.configurator.data" source="1.5" sourcepath="schemas:types:src" splitindex="true" use="true" version="true">
+            <link href="http://download.oracle.com/javase/6/docs/api/"/>
+        </javadoc>
+    </target>
+</project>

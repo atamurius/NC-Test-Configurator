@@ -1,0 +1,14 @@
+com.netcracker.tc.configurator.data
+com.netcracker.tc.configurator.data.xml
+com.netcracker.tc.configurator.ui
+com.netcracker.tc.model
+com.netcracker.tc.tests.anns
+com.netcracker.tc.tests.examples
+com.netcracker.tc.types.standard.bool
+com.netcracker.tc.types.standard.enumeration
+com.netcracker.tc.types.standard.num
+com.netcracker.tc.types.standard.ref
+com.netcracker.tc.types.standard.set
+com.netcracker.tc.types.standard.string
+com.netcracker.util
+com.netcracker.xml
