@@ -1,20 +1,21 @@
 package com.netcracker.tc.types.standard.enumeration;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
-import com.netcracker.tc.configurator.data.TypeReader;
 import com.netcracker.tc.model.Type;
+import com.netcracker.tc.types.standard.SimpleTypeReader;
 
-public final class EnumTypeReader implements TypeReader
+public final class EnumTypeReader extends SimpleTypeReader
 {
+    public EnumTypeReader()
+    {
+        super(null, Enum.class);
+    }
+    
     @SuppressWarnings("unchecked")
     @Override
-    public Type read(Class<?> type, Annotation[] annotations)
+    protected Type getType(Class<?> type, AnnotatedElement element)
     {
-        if (Enum.class.isAssignableFrom(type)) {
-            return new EnumType((Class<Enum<?>>) type);
-        }
-        else
-            return null;
+        return new EnumType((Class<Enum<?>>) type);
     }
 }

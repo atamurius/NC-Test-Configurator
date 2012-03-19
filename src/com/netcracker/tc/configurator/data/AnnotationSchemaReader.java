@@ -1,8 +1,10 @@
 package com.netcracker.tc.configurator.data;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +40,7 @@ public class AnnotationSchemaReader
 
     public void register(Class<?> type) throws InstantiationException, IllegalAccessException
     {
-        if (TypeReader.class.isAssignableFrom(type))
+        if (TypeReader.class.isAssignableFrom(type) && ! Modifier.isAbstract(type.getModifiers()))
             readers.add(type.asSubclass(TypeReader.class).newInstance());
     }
     
@@ -119,22 +121,12 @@ public class AnnotationSchemaReader
         Annotation[][] anns = scenario.getParameterAnnotations();
         
         for (int i = 0; i < types.length; i++) {
-            String name = findAnnotation(anns[i], Param.class).value();
-            props.add(getParameter(
-                    name, types[i], anns[i]));
+            Annotations as = new Annotations(anns[i]);
+            String name = as.getAnnotation(Param.class).value();
+            props.add(getParameter(name, types[i], as));
         }
         
         return props;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T findAnnotation(Annotation[] annotations,
-            Class<T> type)
-    {
-        for (Annotation a : annotations)
-            if (type.isInstance(a))
-                return (T) a;
-        return null;
     }
 
     private List<Parameter> getFieldParameters(Class<?> type)
@@ -146,16 +138,16 @@ public class AnnotationSchemaReader
                 props.add(getParameter(
                         field.getName(), 
                         field.getType(),
-                        field.getAnnotations()));
+                        field));
             }
         
         return props;
     }
 
-    private Parameter getParameter(String name, Class<?> type, Annotation[] annotations)
+    private Parameter getParameter(String name, Class<?> type, AnnotatedElement elem)
     {
-        Param param = findAnnotation(annotations, Param.class);
-        Type pType = readType(name, type, annotations);
+        Param param = elem.getAnnotation(Param.class);
+        Type pType = readType(name, type, elem);
         Object value = (param.defValue().equals(Param.VALUE_NONE))
                 ? pType.defaultValue()
                 : pType.valueOf(param.defValue());
@@ -167,10 +159,10 @@ public class AnnotationSchemaReader
                 value);
     }
 
-    private Type readType(String name, Class<?> type, Annotation[] annotations)
+    private Type readType(String name, Class<?> type, AnnotatedElement elem)
     {
         for (TypeReader reader : readers) {
-            Type t = reader.read(type, annotations);
+            Type t = reader.read(type, elem);
             if (t != null)
                 return t;
         }
@@ -203,7 +195,48 @@ public class AnnotationSchemaReader
     }
 }
 
+final class Annotations implements AnnotatedElement
+{
+    private final Annotation[] anns;
 
+    public Annotations(Annotation[] anns)
+    {
+        this.anns = anns;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass)
+    {
+        for (Annotation a : anns)
+            if (annotationClass.isInstance(a))
+                return (T) a;
+        return null;
+    }
+
+    @Override
+    public Annotation[] getAnnotations()
+    {
+        return anns;
+    }
+
+    @Override
+    public Annotation[] getDeclaredAnnotations()
+    {
+        return anns;
+    }
+
+    @Override
+    public boolean isAnnotationPresent(
+            Class<? extends Annotation> annotationClass)
+    {
+        for (Annotation a : anns)
+            if (annotationClass.isInstance(a))
+                return true;
+        return false;
+    }
+    
+}
 
 
 

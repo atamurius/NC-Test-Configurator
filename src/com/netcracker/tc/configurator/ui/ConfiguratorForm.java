@@ -223,6 +223,8 @@ public class ConfiguratorForm
         
         if (obj instanceof Scenario)
             editor.reset((Scenario) obj);
+        else
+            editor.reset();
     }
     
     /**

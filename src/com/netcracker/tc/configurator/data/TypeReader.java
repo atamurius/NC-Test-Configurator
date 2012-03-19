@@ -1,6 +1,6 @@
 package com.netcracker.tc.configurator.data;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 import com.netcracker.tc.model.Type;
 
@@ -16,5 +16,5 @@ public interface TypeReader
      * using parameter class and set of annotations.
      * @return parameter type or null, if this reader don't know this type.
      */
-    Type read(Class<?> type, Annotation[] annotations);
+    Type read(Class<?> type, AnnotatedElement element);
 }

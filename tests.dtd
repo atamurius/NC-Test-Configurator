@@ -8,6 +8,10 @@
 <!ATTLIST scenario type CDATA #REQUIRED>
 <!ATTLIST scenario title CDATA #REQUIRED>
 
-<!ELEMENT property EMPTY>
+<!ELEMENT property (item*)>
 <!ATTLIST property name CDATA #REQUIRED>
-<!ATTLIST property value CDATA #REQUIRED>
+<!ATTLIST property value CDATA #IMPLIED>
+
+<!ELEMENT item EMPTY>
+<!ATTLIST item key CDATA #IMPLIED>
+<!ATTLIST item value CDATA #IMPLIED>

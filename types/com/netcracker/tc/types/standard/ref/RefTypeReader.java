@@ -1,17 +1,16 @@
 package com.netcracker.tc.types.standard.ref;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
-import com.netcracker.tc.configurator.data.AnnotationSchemaReader;
 import com.netcracker.tc.configurator.data.TypeReader;
 import com.netcracker.tc.model.Type;
 
 public final class RefTypeReader implements TypeReader
 {
     @Override
-    public Type read(Class<?> type, Annotation[] annotations)
+    public Type read(Class<?> type, AnnotatedElement elem)
     {
-        Ref a = AnnotationSchemaReader.findAnnotation(annotations, Ref.class);
+        Ref a = elem.getAnnotation(Ref.class);
         if (a != null)
             return new RefType(
                     a.value().isEmpty() ? type.getName() : a.value(), 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE tests SYSTEM "tests.dtd">
+<tests>
+  <test title="New test">
+    <scenario id="scenario0" title="Example scenario" type="com.netcracker.tc.tests.examples.Types.scenario">
+      <property name="bool" value="true"/>
+      <property name="enumeration" value="DEFAULT"/>
+      <property name="list">
+        <item value="first"/>
+        <item value="second"/>
+        <item value="last"/>
+      </property>
+      <property name="map">
+        <item key="key1" value="value1"/>
+        <item key="key2" value="value2"/>
+      </property>
+      <property name="integer" value="42"/>
+      <property name="real" value="0.12"/>
+      <property name="date" value="31/12/2012"/>
+    </scenario>
+  </test>
+</tests>

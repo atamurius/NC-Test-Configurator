@@ -1,6 +1,7 @@
 package com.netcracker.tc.tests.examples;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.netcracker.tc.tests.anns.Output;
@@ -30,7 +31,8 @@ public class Switch
     public SwitchInfo create(
             @Param("name") String name,
             @Param("portCount") @Num(min = 1) int portCount,
-            @Param("price") double price) {
+            @Param(value = "portNames", description = "One name per row", defValue = "port1,port2") 
+            List<String> names) {
         
         SwitchInfo result = new SwitchInfo();
         for (int i = 0; i < portCount; i++)

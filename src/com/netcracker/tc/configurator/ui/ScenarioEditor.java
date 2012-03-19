@@ -147,6 +147,8 @@ public class ScenarioEditor extends JScrollPane implements Observer
         JLabel label = new JLabel(f.property.getTitle());
         label.setFont(label.getFont().deriveFont(Font.BOLD));
         panel.add(label, c);
+        if (! f.property.getDescription().isEmpty())
+            label.setToolTipText(f.property.getDescription());
         
         c.gridx = 1;
         c.gridheight = 1;
