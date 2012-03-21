@@ -1,7 +1,7 @@
 package com.netcracker.tc.configurator.data.xml;
 
 import com.netcracker.tc.model.Type;
-import com.netcracker.xml.Constructor;
+import com.netcracker.util.xml.Constructor;
 
 /**
  * Xml test writer module.

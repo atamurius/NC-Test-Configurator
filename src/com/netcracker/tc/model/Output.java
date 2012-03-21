@@ -85,6 +85,6 @@ public class Output
     @Override
     public String toString()
     {
-        return scenario.getTitle() + ": " + title;
+        return (scenario == null ? "" : scenario.getTitle() + ": ") + title;
     }
 }

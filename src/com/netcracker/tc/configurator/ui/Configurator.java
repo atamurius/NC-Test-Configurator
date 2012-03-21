@@ -20,8 +20,8 @@ import com.netcracker.tc.model.Schemas;
 import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
 import com.netcracker.tc.model.Configuration;
-import com.netcracker.util.ClassPath;
 import com.netcracker.util.Label;
+import com.netcracker.util.classes.ClassEnumerator;
 
 public class Configurator
 {
@@ -37,31 +37,18 @@ public class Configurator
     private String currentFile;
 
 
-    public Configurator()
+    public Configurator() throws IOException
     {
         EditorRegistry widgets = new EditorRegistry();
         XmlTestGroupReader reader = new XmlTestGroupReader();
         XmlTestGroupWriter writer = new XmlTestGroupWriter();
         AnnotationSchemaReader schema = new AnnotationSchemaReader();
         
-        try {
-            for (String typeName : ClassPath.enumerateClassesAt(
-                    new File("bin"), "com.netcracker.tc.types.standard")) {
-                
-                Class<?> type = Class.forName(typeName);
-                widgets.register(type);
-                reader.register(type);
-                writer.register(type);
-                schema.register(type);
-            }
-            for (String typeName : ClassPath.enumerateClassesAt(
-                    new File("bin"), "com.netcracker.tc.tests.examples"))
-                schema.analyze(Class.forName(typeName));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
+        ClassEnumerator.registerClassesFromPath(new File("ext"), 
+                reader, writer, schema, widgets);
+
+        ClassEnumerator.registerClassesFromPath(new File("ext"), schema.analizator);
+
         this.writer = writer;
         this.reader = reader;
         this.actions = schema.getActions();
@@ -72,7 +59,7 @@ public class Configurator
         form.show();
     }
     
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
         new Configurator();
     }
@@ -129,6 +116,7 @@ public class Configurator
         try {
             InputStream in = new BufferedInputStream(new FileInputStream(currentFile));
             try {
+                form.resetEditor();
                 tests.clear();
                 reader.read(in, tests, actions);
                 form.selectionChanged();

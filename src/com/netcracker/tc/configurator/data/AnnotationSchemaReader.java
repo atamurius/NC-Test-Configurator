@@ -4,16 +4,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Schema;
 import com.netcracker.tc.model.Schemas;
-import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Type;
 import com.netcracker.tc.tests.anns.Output;
 import com.netcracker.tc.tests.anns.Outputs;
@@ -21,6 +20,8 @@ import com.netcracker.tc.tests.anns.Param;
 import com.netcracker.tc.tests.anns.Params;
 import com.netcracker.tc.tests.anns.Scenario;
 import com.netcracker.tc.tests.anns.Scenarios;
+import com.netcracker.tc.types.standard.ref.RefTypeReader;
+import com.netcracker.util.classes.ClassRegistry;
 
 /**
  * This class represents logic for analyzing test scenario classes and
@@ -34,17 +35,30 @@ import com.netcracker.tc.tests.anns.Scenarios;
  * 
  * @see com.netcracker.tc.tests.anns
  */
-public class AnnotationSchemaReader
+public class AnnotationSchemaReader implements ClassRegistry
 {
     private final List<TypeReader> readers = new ArrayList<TypeReader>();
 
-    public void register(Class<?> type) throws InstantiationException, IllegalAccessException
+    public void register(Class<?> type)
     {
-        if (TypeReader.class.isAssignableFrom(type) && ! Modifier.isAbstract(type.getModifiers()))
-            readers.add(type.asSubclass(TypeReader.class).newInstance());
+        try {
+            if (TypeReader.class.isAssignableFrom(type))
+                readers.add(type.asSubclass(TypeReader.class).newInstance());
+        }
+        catch (Exception e) {
+            System.out.println("AnnotationSchemaReader: Failed to load "+ type);
+        }
+    }
+    
+    {
+        register(RefTypeReader.class);
     }
     
     private final Schemas actions = new Schemas();
+    
+    public final ClassRegistry analizator = new ClassRegistry() {
+        public void register(Class<?> type) {
+            analyze(type); } };
     
     public void analyze(Class<?> type)
     {

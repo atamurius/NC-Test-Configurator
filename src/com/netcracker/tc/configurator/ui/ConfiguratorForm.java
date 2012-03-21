@@ -338,6 +338,11 @@ public class ConfiguratorForm
     {
         frame.dispose();
     }
+
+    public void resetEditor()
+    {
+        editor.reset();
+    }
 }
 
 

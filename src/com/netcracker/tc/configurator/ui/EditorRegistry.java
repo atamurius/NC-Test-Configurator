@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.netcracker.tc.model.Parameter;
+import com.netcracker.util.classes.ClassRegistry;
 
-public class EditorRegistry
+public class EditorRegistry implements ClassRegistry
 {
     private Map<Class<?>,Class<?>> reg = new HashMap<Class<?>, Class<?>>();
     
@@ -17,7 +18,8 @@ public class EditorRegistry
                 reg.put(widget.getType(), widget.getClass());
             }
             catch (Exception e) {
-                throw new IllegalArgumentException(e);
+                System.out.println("EditorRegistry: Failed to load "+ type);
+                e.printStackTrace();
             }
         }
     }

@@ -11,16 +11,22 @@ import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
 import com.netcracker.tc.model.Configuration;
 import com.netcracker.tc.model.Type;
-import com.netcracker.xml.Constructor;
+import com.netcracker.util.classes.ClassRegistry;
+import com.netcracker.util.xml.Constructor;
 
-public class XmlTestGroupWriter implements ConfigurationWriter
+public class XmlTestGroupWriter implements ConfigurationWriter, ClassRegistry
 {
     private final List<ValueWriter> writers = new ArrayList<ValueWriter>();
 
-    public void register(Class<?> type) throws InstantiationException, IllegalAccessException
+    public void register(Class<?> type)
     {
-        if (ValueWriter.class.isAssignableFrom(type))
-            writers.add(type.asSubclass(ValueWriter.class).newInstance());
+        try {
+            if (ValueWriter.class.isAssignableFrom(type))
+                writers.add(type.asSubclass(ValueWriter.class).newInstance());
+        }
+        catch (Exception e) {
+            System.out.println("XmlTestGroupWriter: Failed to load "+ type);
+        }
     }
     
     @Override
