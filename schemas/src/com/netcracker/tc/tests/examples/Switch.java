@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.netcracker.tc.tests.anns.Default;
 import com.netcracker.tc.tests.anns.Output;
 import com.netcracker.tc.tests.anns.Param;
 import com.netcracker.tc.tests.anns.Scenario;
@@ -25,13 +26,14 @@ public class Switch
         public Map<Integer,String> portIds = new HashMap<Integer, String>();
     }
     
-    @Scenario(
-        output = @Output("Switch")
-    )
+    @Scenario
+    @Output("Switch")
     public SwitchInfo create(
-            @Param("name") String name,
-            @Param("portCount") @Num(min = 1) int portCount,
-            @Param(value = "portNames", description = "One name per row", defValue = "port1,port2") 
+            @Param("Name") 
+            String name,
+            @Param("Port count") @Num(min = 1) @Default("10") 
+            int portCount,
+            @Param(value = "Port names", description = "One name per row") @Default("port1,port2") 
             List<String> names) {
         
         SwitchInfo result = new SwitchInfo();
@@ -42,9 +44,9 @@ public class Switch
     
     @Scenario
     public void deletePort(
-            @Param("switch") @Ref SwitchInfo source,
-            @Param("portId") @Num(min = 1) int portId,
-            @Param(value = "deadPort", description = "Port is marked as 'Dead'") boolean deadPort) {
+            @Param("Switch") @Ref SwitchInfo source,
+            @Param("Port ID") @Num(min = 1) int portId,
+            @Param(value = "Dead port", description = "Port is marked as 'Dead'") boolean deadPort) {
 
         source.portIds.remove(portId);
     }

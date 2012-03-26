@@ -1,6 +1,6 @@
 package com.netcracker.tc.tests.anns;
 
-import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.*;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -9,14 +9,14 @@ import java.lang.annotation.Target;
 
 /**
  * {@link Scenario} output field.
- * Must be public field.
+ * Annotate field or outputs class or Scenario method.
  * 
  * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
  *
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({FIELD})
+@Target({FIELD,METHOD})
 public @interface Output
 {
     /**

@@ -1,5 +1,6 @@
 package com.netcracker.tc.types.standard.enumeration;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import com.netcracker.tc.model.Parameter;
@@ -13,7 +14,8 @@ import com.netcracker.tc.model.Type;
  */
 public class EnumType implements Type
 {
-    private static final ResourceBundle LANG = ResourceBundle.getBundle("types");
+    private static final ResourceBundle LANG = 
+            ResourceBundle.getBundle("types", Locale.getDefault(), EnumType.class.getClassLoader());
 
     private final Class<? extends Enum<?>> enumType;
     

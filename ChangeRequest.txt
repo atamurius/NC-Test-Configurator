@@ -1,0 +1,11 @@
+[2012-03-27]
+- Fields can be non-public, but classes and method?
+
+[2012-03-22]
++ remove public visibility restrictions on fields and methods
++ Param value is title, name is obsolete
++ Enum values are transformed to `Normal words`
++ Add ABBR rules to name->title transform
+- saved configurations and schemas missfit case
++ @Scenarios must be derived
++ Conbining @Param and several @Params

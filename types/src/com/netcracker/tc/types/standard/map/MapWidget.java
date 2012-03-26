@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -24,7 +25,6 @@ import com.netcracker.tc.configurator.ui.EditorWidget;
 import com.netcracker.tc.model.Parameter;
 import com.netcracker.tc.model.Type;
 import com.netcracker.util.Label;
-import com.netcracker.util.Label.Bundle;
 
 // TODO: non-unique keys
 public class MapWidget implements EditorWidget, TableModelListener
@@ -115,7 +115,7 @@ public class MapWidget implements EditorWidget, TableModelListener
 @SuppressWarnings("serial")
 class TableModel extends AbstractTableModel
 {
-    private final Bundle L = Label.getBundle(TableModel.class, "types");
+    private final ResourceBundle L = ResourceBundle.getBundle("types");
 
     List<String> keys = new ArrayList<String>();
     List<String> values = new ArrayList<String>();
@@ -123,7 +123,7 @@ class TableModel extends AbstractTableModel
     @Override
     public String getColumnName(int column)
     {
-        return L.get(column == 0 ? "ui.map.key" : "ui.map.value");
+        return Label.get(L, column == 0 ? "ui.map.key" : "ui.map.value");
     }
     
     @Override

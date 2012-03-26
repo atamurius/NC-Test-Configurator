@@ -22,7 +22,7 @@ public class Label
         
         return get(bundles.get(bundle), label, args);
     }
-    
+
     public static Bundle getBundle(final String name)
     {
         return new Bundle()
@@ -49,7 +49,7 @@ public class Label
     }
 
     public static String get(ResourceBundle bundle, String label,
-            Object[] args)
+            Object ... args)
     {
         String string = bundle.getString(label);
         if (args.length > 0)

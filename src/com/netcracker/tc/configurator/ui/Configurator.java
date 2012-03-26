@@ -10,16 +10,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.netcracker.tc.configurator.data.AnnotationSchemaReader;
-import com.netcracker.tc.configurator.data.DataException;
 import com.netcracker.tc.configurator.data.ConfigurationReader;
 import com.netcracker.tc.configurator.data.ConfigurationWriter;
+import com.netcracker.tc.configurator.data.DataException;
 import com.netcracker.tc.configurator.data.xml.XmlTestGroupReader;
 import com.netcracker.tc.configurator.data.xml.XmlTestGroupWriter;
+import com.netcracker.tc.model.Configuration;
+import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Schema;
 import com.netcracker.tc.model.Schemas;
-import com.netcracker.tc.model.Scenario;
 import com.netcracker.tc.model.Test;
-import com.netcracker.tc.model.Configuration;
+import com.netcracker.tc.types.standard.ref.RefTypeReader;
+import com.netcracker.tc.types.standard.ref.RefValue;
+import com.netcracker.tc.types.standard.ref.RefWidget;
 import com.netcracker.util.Label;
 import com.netcracker.util.classes.ClassEnumerator;
 
@@ -39,15 +42,22 @@ public class Configurator
 
     public Configurator() throws IOException
     {
+        final File EXT_DIR = new File(System.getProperty("extensions", "ext"));
+        
         EditorRegistry widgets = new EditorRegistry();
         XmlTestGroupReader reader = new XmlTestGroupReader();
         XmlTestGroupWriter writer = new XmlTestGroupWriter();
         AnnotationSchemaReader schema = new AnnotationSchemaReader();
         
-        ClassEnumerator.registerClassesFromPath(new File("ext"), 
-                reader, writer, schema, widgets);
+        // standard types
+        schema.register(RefTypeReader.class);
+        widgets.register(RefWidget.class);
+        reader.register(RefValue.class);
+        writer.register(RefValue.class);
+        
+        ClassEnumerator.registerClassesFromPath(EXT_DIR, reader, writer, schema, widgets);
 
-        ClassEnumerator.registerClassesFromPath(new File("ext"), schema.analizator);
+        ClassEnumerator.registerClassesFromPath(EXT_DIR, schema.analizator);
 
         this.writer = writer;
         this.reader = reader;

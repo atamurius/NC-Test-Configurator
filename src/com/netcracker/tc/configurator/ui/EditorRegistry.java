@@ -16,6 +16,7 @@ public class EditorRegistry implements ClassRegistry
             try {
                 EditorWidget widget = type.asSubclass(EditorWidget.class).newInstance();
                 reg.put(widget.getType(), widget.getClass());
+                System.out.println("EditorRegistry: widget registered: "+ type.getName());
             }
             catch (Exception e) {
                 System.out.println("EditorRegistry: Failed to load "+ type);

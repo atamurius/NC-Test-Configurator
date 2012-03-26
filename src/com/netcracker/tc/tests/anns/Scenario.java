@@ -15,7 +15,8 @@ import java.lang.annotation.Target;
  * Scenario must be non-static method of
  * {@link Scenarios} annotated class.
  * 
- * Scenario can return one result, or object of class,
+ * Scenario can return one result (in this case method should be
+ * annotated with {@link Output}, or object of class,
  * marked as {@link Outputs}
  * 
  * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
@@ -31,11 +32,6 @@ public @interface Scenario
      * Default value is method name.
      */
     String value() default "";
-    
-    /**
-     * Output info for return type.
-     */
-    Output output() default @Output;
 }
 
 

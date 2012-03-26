@@ -1,5 +1,6 @@
 package com.netcracker.tc.tests.examples;
 
+import com.netcracker.tc.tests.anns.Default;
 import com.netcracker.tc.tests.anns.Output;
 import com.netcracker.tc.tests.anns.Outputs;
 import com.netcracker.tc.tests.anns.Param;
@@ -19,30 +20,32 @@ public class Person
 {
     public static enum Gender { MALE, FEMALE };
 
-    @Scenario(
-        output = @Output(value = "Id", type = "person:id")
-    )
+    @Scenario
+    @Output(value = "ID", type = "person:id")
     public String create(
-            @Param("firstName") String firstName,
-            @Param("lastName") String lastName,
-            @Param("age") @Num(min = 1) int age,
-            @Param("gender") Gender gender) {
-        
+            @Param("First name") 
+            String firstName,
+            @Param("Last name") 
+            String lastName,
+            @Param("Age") @Num(min = 1) @Default("18") 
+            int age,
+            @Param("Gender") 
+            Gender gender
+    ) {
         return "Some id";
     }
     
     @Scenario
-    public void delete(@Param("person") @Ref("person:id") String personId) {
-    }
+    public void delete(@Param("Person") @Ref("person:id") String personId) { }
     
     @Outputs
     public static class RandomPersons
     {
         @Output(type = "person:id")
-        public String firstPerson = "random1";
+        String firstPerson = "random1";
         
         @Output(type = "person:id")
-        public String secondPerson = "random2";
+        String secondPerson = "random2";
     }
     
     @Scenario
@@ -54,24 +57,21 @@ public class Person
     public static class ModifyParams
     {
         @Param
-        public String firstName;
+        String firstName = "Jhon";
         
         @Param
-        public String lastName;
+        String lastName = "Doe";
         
         @Param 
         @Num(min = 1) 
-        public int age;
+        int age = 18;
 
         @Param
-        public Gender gender;
+        Gender gender = Gender.MALE;
     }
     
     @Scenario
-    public void modify(@Params ModifyParams params)
-    {
-        // Nothing to do here
-    }
+    public void modify(@Params ModifyParams params) { }
 }
 
 

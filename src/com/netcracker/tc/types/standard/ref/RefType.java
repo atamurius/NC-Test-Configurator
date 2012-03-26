@@ -7,7 +7,7 @@ import com.netcracker.util.Label;
 
 public class RefType implements Type
 {
-    private static final String LABEL = "types";
+    private static final String LABEL = "ui";
 
     private final String type;
     private final boolean required;

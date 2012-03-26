@@ -27,7 +27,7 @@ public class ClassEnumerator
                     try {
                         Class<?> type = cloader.loadClass(tname);
                         int mod = type.getModifiers();
-                        if (Modifier.isPublic(mod) && ! Modifier.isAbstract(mod))
+                        if (! Modifier.isAbstract(mod))
                             for (ClassRegistry reg : regs)
                                 reg.register(type);
                     }
@@ -64,9 +64,9 @@ public class ClassEnumerator
             if (file.isDirectory())
                 registerSubFiles(cloader, file, withPrefix(prefix, file.getName()), regs);
             
-            else if (file.getName().endsWith(".jar"))
+            else if (file.getName().endsWith(".jar")) {
                 registerClassesFromJar(file, regs);
-            
+            }
             else if (file.getName().endsWith(".class") && ! file.getName().equals("package-info.class")) {
                 String tname = withPrefix(prefix, file.getName().substring(0, file.getName().length() - 6));
                 try {

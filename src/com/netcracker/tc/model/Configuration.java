@@ -95,7 +95,7 @@ public class Configuration
      */
     void notify(Object src, Observer.Event event)
     {
-        for (Observer obs : observers) {
+        for (Observer obs : observers.toArray(new Observer[0])) {
             obs.update(src, event);
         }
     }

@@ -1,5 +1,7 @@
 package com.netcracker.tc.tests.examples;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,45 +15,50 @@ import com.netcracker.tc.types.standard.string.Str;
 @Scenarios("Type examples")
 public class Types
 {
-    public enum TestEnum
-    {
-        SOME_VALUE, DEFAULT, OTHER_VALUE, VALUE_3, LAST_VALUE;
-        
-        public String toString() 
-        {
-            String name = name().substring(1).toLowerCase().replaceAll("_", " ");
-            return name().substring(0,1) + name;
-        }
-    }
+    public enum TestEnum {
+        SOME_VALUE, DEFAULT, OTHER_VALUE, VALUE_3, LAST_VALUE }
     
     public static class Parameters
     {
-        @Param(description = "True of false", defValue = "true")
-        public boolean bool; 
+        @Param(description = "True of false")
+        boolean bool = true; 
         
-        @Param(description = "Enum values", defValue = "DEFAULT")
-        public TestEnum enumeration;
+        @Param(description = "Enum values")
+        TestEnum enumeration = TestEnum.DEFAULT;
         
-        @Param(description = "List of strings, one per row", defValue = "first,second,last")
-        public List<String> list;
+        @Param(description = "List of strings, one per row")
+        List<String> list = Arrays.asList("first","second","third");
         
-        @Param(description = "Key-value string pairs, DEL to delete, ENTER to insert", 
-                defValue = "key1:value1,key2:value2")
-        public Map<String,String> map;
+        @Param(description = "Key-value string pairs, DEL to delete, ENTER to insert")
+        Map<String,String> map = new HashMap<String, String>();
+        {
+            map.put("key1", "value1");
+            map.put("key2", "value2");
+            map.put("key3", "value3");
+        }
         
-        @Param(description = "Integral value from 0 to 100", defValue = "42")
+        @Param(description = "Integral value from 0 to 100")
         @Num(min = 0, max = 100)
-        public int integer;
+        int integer = 42;
         
-        @Param(description = "Real value from -1 to 1", defValue = "0.12")
+        @Param(description = "Real value from -1 to 1")
         @Num(min = -1, max = 1)
-        public double real;
+        double real;
         
-        @Param(description = "String in format 31/12/2012", defValue = "31/12/2012")
+        @Param(description = "String in format 31/12/2012")
         @Str(pattern = "\\d{2}/\\d{2}/\\d{4}")
-        public String date;
+        String date = "12/03/2012";
+    }
+    
+    static class Another
+    {
+        @Param String someXML_string = "<?xml version=\"1.0\"?>";
     }
     
     @Scenario("Example scenario")
-    public void scenario(@Params Parameters p) { }
+    public void scenario(
+            @Param("Test") int test, 
+            @Params Parameters p, 
+            @Param("Other") int other,
+            @Params Another p1) { }
 }
