@@ -1,3 +1,10 @@
+[2012-03-29]
++ Test executor
+- Fields as parameters
+
+[2012-03-28]
++ Enum, Ref required and optional
+
 [2012-03-27]
 - Fields can be non-public, but classes and method?
 

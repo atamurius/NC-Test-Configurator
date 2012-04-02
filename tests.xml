@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE tests SYSTEM "tests.dtd">
+<tests>
+  <test title="New test">
+    <scenario id="scenario0" title="Example scenario" type="com.netcracker.tconf.examples.Types.scenario">
+      <property name="arg#0" value="0"/>
+      <property name="arg#1.bool" value="true"/>
+      <property name="arg#1.enumeration" value="DEFAULT"/>
+      <property name="arg#1.optionalEnum" value=""/>
+      <property name="arg#1.list">
+        <item value="first"/>
+        <item value="second"/>
+        <item value="third"/>
+      </property>
+      <property name="arg#1.map">
+        <item key="key3" value="value3"/>
+        <item key="key2" value="value2"/>
+        <item key="key1" value="value1"/>
+      </property>
+      <property name="arg#1.integer" value="42"/>
+      <property name="arg#1.real" value="0.0"/>
+      <property name="arg#1.date" value="12/03/2012"/>
+      <property name="arg#1.optionalString" value=""/>
+      <property name="arg#1.optionalXML_Reference" value=""/>
+      <property name="arg#2" value="0"/>
+      <property name="arg#3.someXML_string" value="&lt;?xml version=&quot;1.0&quot;?&gt;"/>
+    </scenario>
+  </test>
+</tests>
