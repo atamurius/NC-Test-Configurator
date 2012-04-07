@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.netcracker.tconf.annotated.anns.Default;
-import com.netcracker.tconf.annotated.anns.Output;
-import com.netcracker.tconf.annotated.anns.Param;
-import com.netcracker.tconf.annotated.anns.Scenario;
-import com.netcracker.tconf.annotated.anns.Scenarios;
-import com.netcracker.tconf.types.num.Num;
-import com.netcracker.tconf.types.ref.Ref;
+import com.netcracker.sova.annotated.anns.Default;
+import com.netcracker.sova.annotated.anns.Output;
+import com.netcracker.sova.annotated.anns.Param;
+import com.netcracker.sova.annotated.anns.Scenario;
+import com.netcracker.sova.annotated.anns.Scenarios;
+import com.netcracker.sova.types.anns.Num;
+import com.netcracker.sova.types.ref.Ref;
 
 /**
  * Schema example.

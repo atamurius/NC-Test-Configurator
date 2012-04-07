@@ -1,6 +1,10 @@
+[2012-04-07]
++ New enum and params name parsing rules, @Label annotation for enums
++ description display in error messages
+
 [2012-03-29]
 + Test executor
-- Fields as parameters
++ Fields as parameters
 
 [2012-03-28]
 + Enum, Ref required and optional

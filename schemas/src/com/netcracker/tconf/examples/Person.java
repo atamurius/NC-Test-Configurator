@@ -1,14 +1,14 @@
 package com.netcracker.tconf.examples;
 
-import com.netcracker.tconf.annotated.anns.Default;
-import com.netcracker.tconf.annotated.anns.Output;
-import com.netcracker.tconf.annotated.anns.Outputs;
-import com.netcracker.tconf.annotated.anns.Param;
-import com.netcracker.tconf.annotated.anns.Params;
-import com.netcracker.tconf.annotated.anns.Scenario;
-import com.netcracker.tconf.annotated.anns.Scenarios;
-import com.netcracker.tconf.types.num.Num;
-import com.netcracker.tconf.types.ref.Ref;
+import com.netcracker.sova.annotated.anns.Default;
+import com.netcracker.sova.annotated.anns.Output;
+import com.netcracker.sova.annotated.anns.Outputs;
+import com.netcracker.sova.annotated.anns.Param;
+import com.netcracker.sova.annotated.anns.Params;
+import com.netcracker.sova.annotated.anns.Scenario;
+import com.netcracker.sova.annotated.anns.Scenarios;
+import com.netcracker.sova.types.anns.Num;
+import com.netcracker.sova.types.ref.Ref;
 
 /**
  * Schema example.
