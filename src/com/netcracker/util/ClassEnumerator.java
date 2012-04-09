@@ -41,6 +41,9 @@ public class ClassEnumerator
                             for (ClassRegistry reg : regs)
                                 reg.register(type);
                     }
+                    catch (NoClassDefFoundError e) {
+                        System.out.println("Failed to load class "+ tname);
+                    }
                     catch (ClassNotFoundException e) {
                         System.out.println("Failed to load class "+ tname);
                     }

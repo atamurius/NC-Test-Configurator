@@ -1,4 +1,4 @@
-package com.netcracker.sova.types.anns;
+package com.netcracker.sova.types.pub;
 
 import static java.lang.annotation.ElementType.FIELD;
 

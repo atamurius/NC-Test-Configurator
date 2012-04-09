@@ -7,8 +7,8 @@ import com.netcracker.sova.annotated.anns.Param;
 import com.netcracker.sova.annotated.anns.Params;
 import com.netcracker.sova.annotated.anns.Scenario;
 import com.netcracker.sova.annotated.anns.Scenarios;
-import com.netcracker.sova.types.anns.Label;
-import com.netcracker.sova.types.ref.Ref;
+import com.netcracker.sova.types.pub.Label;
+import com.netcracker.sova.types.pub.Ref;
 import com.netcracker.tc.tests.examples.search.SearchCondition;
 
 @Scenarios("ServiceOrder")

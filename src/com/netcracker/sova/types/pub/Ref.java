@@ -1,4 +1,4 @@
-package com.netcracker.sova.types.ref;
+package com.netcracker.sova.types.pub;
 
 import static java.lang.annotation.ElementType.*;
 
@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.netcracker.sova.annotated.anns.Param;
+import com.netcracker.sova.types.ref.RefType;
 
 /**
  * {@link Param} annotation for {@link RefType}.

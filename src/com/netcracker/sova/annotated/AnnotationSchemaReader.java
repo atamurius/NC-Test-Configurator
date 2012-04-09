@@ -20,6 +20,8 @@ import com.netcracker.sova.model.Parameter;
 import com.netcracker.sova.model.Schema;
 import com.netcracker.sova.model.Schemas;
 import com.netcracker.sova.model.Type;
+import com.netcracker.sova.types.ref.RefTypeReader;
+import com.netcracker.util.Case;
 import com.netcracker.util.ClassRegistry;
 
 /**
@@ -49,6 +51,10 @@ public class AnnotationSchemaReader implements ClassRegistry
     public static final String RETURN_OUTPUT_NAME = "::return";
 
     public final TypeReaders TYPE_READERS = new TypeReaders();
+    {
+        // register default types
+        TYPE_READERS.register(RefTypeReader.class);
+    }
     
     public final Schemas actions = new Schemas();
     
@@ -57,8 +63,6 @@ public class AnnotationSchemaReader implements ClassRegistry
         if (type.isAnnotationPresent(Scenarios.class) && 
                 ! Modifier.isAbstract(type.getModifiers())) {
             
-            System.out.println("Scenarios found: "+ type.getName());
-
             fetchScenarios(type);
         }
     }

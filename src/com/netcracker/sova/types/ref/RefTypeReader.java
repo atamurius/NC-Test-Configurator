@@ -5,6 +5,7 @@ import java.lang.reflect.AnnotatedElement;
 import com.netcracker.sova.annotated.TypeReader;
 import com.netcracker.sova.annotated.anns.Optional;
 import com.netcracker.sova.model.Type;
+import com.netcracker.sova.types.pub.Ref;
 
 public final class RefTypeReader implements TypeReader
 {

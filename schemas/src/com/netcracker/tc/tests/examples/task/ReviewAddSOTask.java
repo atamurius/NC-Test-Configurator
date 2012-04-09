@@ -2,8 +2,8 @@ package com.netcracker.tc.tests.examples.task;
 
 import com.netcracker.sova.annotated.anns.Param;
 import com.netcracker.sova.annotated.anns.Scenario;
-import com.netcracker.sova.types.anns.Str;
-import com.netcracker.sova.types.ref.Ref;
+import com.netcracker.sova.types.pub.Ref;
+import com.netcracker.sova.types.pub.Str;
 
 
 public class ReviewAddSOTask extends AbstractTask {

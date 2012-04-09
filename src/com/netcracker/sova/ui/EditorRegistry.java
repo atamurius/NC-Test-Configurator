@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.netcracker.sova.model.Parameter;
+import com.netcracker.sova.types.ref.RefWidget;
 import com.netcracker.util.ClassRegistry;
 
 public class EditorRegistry implements ClassRegistry
@@ -16,13 +17,16 @@ public class EditorRegistry implements ClassRegistry
             try {
                 EditorWidget widget = type.asSubclass(EditorWidget.class).newInstance();
                 reg.put(widget.getType(), widget.getClass());
-                System.out.println("EditorRegistry: widget registered: "+ type.getName());
             }
             catch (Exception e) {
                 System.out.println("EditorRegistry: Failed to load "+ type);
                 e.printStackTrace();
             }
         }
+    }
+    {
+        // register default types
+        register(RefWidget.class);
     }
     
     public EditorWidget editorFor(Parameter property)

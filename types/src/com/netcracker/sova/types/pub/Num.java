@@ -1,4 +1,4 @@
-package com.netcracker.sova.types.anns;
+package com.netcracker.sova.types.pub;
 
 import static java.lang.annotation.ElementType.*;
 
@@ -7,20 +7,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.netcracker.sova.annotated.anns.Param;
-import com.netcracker.sova.types.string.StringType;
+import com.netcracker.sova.types.num.IntType;
+import com.netcracker.sova.types.num.RealType;
+
 
 /**
- * {@link Param} attribute for {@link StringType}.
+ * Annotation for {@link IntType} or {@link RealType} parameters.
  * 
  * @author Aleksej Dsiuba <Dsiuba@NetCracker.com>
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({FIELD,PARAMETER})
-public @interface Str
+@Target({PARAMETER,FIELD})
+public @interface Num
 {
-    int max() default 0;
+    double min() default Double.NaN;
     
-    String pattern() default "";
+    double max() default Double.NaN;
 }

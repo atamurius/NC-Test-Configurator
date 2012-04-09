@@ -18,6 +18,7 @@ import com.netcracker.sova.model.Parameter;
 import com.netcracker.sova.model.Scenario;
 import com.netcracker.sova.model.Schemas;
 import com.netcracker.sova.model.Test;
+import com.netcracker.sova.types.ref.RefValue;
 import com.netcracker.util.ClassRegistry;
 
 public class XmlTestGroupReader implements ConfigurationReader, ClassRegistry
@@ -35,6 +36,11 @@ public class XmlTestGroupReader implements ConfigurationReader, ClassRegistry
         }
     }
 
+    // register default types
+    {
+        register(RefValue.class);
+    }
+    
     @Override
     public void read(InputStream in, Configuration testGroup, Schemas actions) throws DataException
     {

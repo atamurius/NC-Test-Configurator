@@ -5,7 +5,7 @@ import java.lang.reflect.AnnotatedElement;
 import com.netcracker.sova.annotated.anns.Optional;
 import com.netcracker.sova.model.Type;
 import com.netcracker.sova.types.SimpleTypeReader;
-import com.netcracker.sova.types.anns.Str;
+import com.netcracker.sova.types.pub.Str;
 
 public final class StringTypeReader extends SimpleTypeReader
 {

@@ -2,7 +2,7 @@ package com.netcracker.tc.tests.examples.task;
 
 import com.netcracker.sova.annotated.anns.Param;
 import com.netcracker.sova.annotated.anns.Scenario;
-import com.netcracker.sova.types.anns.EnumLabel;
+import com.netcracker.sova.types.pub.Enums;
 
 public class FillFacilityInfoTask extends AbstractTask 
 {
@@ -30,7 +30,7 @@ public class FillFacilityInfoTask extends AbstractTask
 	@Scenario("Process [Fill facility] task")
 	public void execute() 
 	{
-	    System.out.println(EnumLabel.toString(utilizeQInQ));
+	    System.out.println(Enums.toString(utilizeQInQ));
 	    System.out.println(accessFacilityNumber);
 	    System.out.println(accessCircuitNumber);
 	    System.out.println(accessCircuitOrderNumber);
@@ -39,7 +39,7 @@ public class FillFacilityInfoTask extends AbstractTask
 	    System.out.println(busLineNumber);
 	    System.out.println(remedyContactRole);
 	    System.out.println(supportGroup);		
-	    System.out.println(EnumLabel.toString(useQInQ));
+	    System.out.println(Enums.toString(useQInQ));
 	    
 	    executeAction();
 	}

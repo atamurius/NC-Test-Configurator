@@ -14,7 +14,7 @@ import javax.swing.ListCellRenderer;
 
 import com.netcracker.sova.model.Parameter;
 import com.netcracker.sova.model.Type;
-import com.netcracker.sova.types.anns.EnumLabel;
+import com.netcracker.sova.types.pub.Enums;
 import com.netcracker.sova.ui.EditorWidget;
 
 public class EnumWidget implements EditorWidget, ActionListener
@@ -85,7 +85,7 @@ class EnumRenderer implements ListCellRenderer
         Font font = com.getFont();
         
         if (value != null) {
-            com.setText(EnumLabel.toString((Enum<?>) value));
+            com.setText(Enums.toString((Enum<?>) value));
             com.setFont(font.deriveFont(Font.PLAIN));
         }
         else {

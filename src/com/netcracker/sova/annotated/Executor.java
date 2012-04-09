@@ -1,15 +1,21 @@
 package com.netcracker.sova.annotated;
 
-import java.lang.reflect.Field;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.netcracker.sova.io.xml.XmlTestGroupReader;
+import com.netcracker.sova.model.Configuration;
 import com.netcracker.sova.model.Output;
 import com.netcracker.sova.model.Parameter;
 import com.netcracker.sova.model.Scenario;
 import com.netcracker.sova.model.Test;
 import com.netcracker.sova.types.ref.RefType;
+import com.netcracker.util.ClassEnumerator;
 
 public class Executor
 {
@@ -21,6 +27,72 @@ public class Executor
     {
         this.classLoader = classLoader;
     }
+    
+    public static void main(String[] args)
+    {
+        try {
+            if (args.length != 1 && args.length != 2)
+                halt("No arguments passed");
+            
+            String ext = System.getProperty("extensions");
+            if (ext == null)
+                halt("no extensions folder set (folder with types and schema jars)");
+
+            File extf = new File(ext);
+            if (! extf.exists() || ! extf.isDirectory())
+                halt(ext +" doesn't exists or isn't directory");
+            
+            ClassEnumerator classes = new ClassEnumerator(extf);
+
+            XmlTestGroupReader reader = new XmlTestGroupReader();
+            AnnotationSchemaReader schema = new AnnotationSchemaReader();
+            
+            classes.registerClasses(reader, schema.TYPE_READERS);
+            classes.registerClasses(schema);
+            
+            Configuration conf = new Configuration();
+            
+            InputStream in = new BufferedInputStream(new FileInputStream(args[0]));
+            try {
+                reader.read(in, conf, schema.actions);
+            }
+            finally {
+                in.close();
+            }
+            
+            Executor executor = new Executor(classes.getClassLoader());
+            
+            if (args.length == 2) {
+                int index = Integer.parseInt(args[1]);
+                Test test = conf.tests().get(index);
+                executor.execute(test);
+            }
+            else {
+                System.out.println("Executing all tests...");
+                int total = conf.tests().size();
+                int index = 0;
+                for (Test test : conf.tests()) {
+                    System.out.printf("%s%sTest %d of %d%n", HR, HR, ++index, total);
+                    executor.execute(test);
+                }
+            }
+        }
+        catch (Exception e) {
+            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+            System.exit(2);
+        }
+    }
+
+    private static void halt(String msg)
+    {
+        System.out.println(msg);
+        File jar = new File(Executor.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        String unit = jar.getName().endsWith(".jar") ?
+                "-jar " + jar.getName() : Executor.class.getName();
+        System.out.println(
+                "Usage: java -Dextensions=folder "+ unit + " configuration.xml [test index from 0]");
+        System.exit(1);
+    }
 
     /**
      * Executes scenarios,
@@ -29,18 +101,19 @@ public class Executor
      */
     public void execute(Test test)
     {
+        System.out.printf("Executing \"%s\"%n", test.getTitle());
         long time = System.currentTimeMillis();
-        String last = null;
         try {
             int total = test.scenarios().size();
             int i = 1;
             for (Scenario scenario : test.scenarios()) {
-                last = scenario.getSchema().getName();
-                System.out.printf("%s[%d/%d] scenario \"%s\":%s", HR, i++, total, scenario.getTitle(), HR);
+                System.out.printf("%s[%d/%d] scenario \"%s\":%s", 
+                        HR, i++, total, scenario.getTitle(), HR);
+                
                 String scType = scenario.getSchema().getName();
                 int p = scType.lastIndexOf('.');
                 Class<?> type = classLoader.loadClass(scType.substring(0,p));
-                Method method = findMethod(type, scType.substring(p+1));
+                Method method = Reflection.findMethod(type, scType.substring(p+1));
                 Object[] args = fillParameters(method.getParameterTypes(), scenario.parameters().values());
                 Object instance = type.newInstance();
                 Object result = method.invoke(instance, args);
@@ -53,7 +126,7 @@ public class Executor
             }
         }
         catch (Exception e) {
-            System.out.println(HR + "Execution failed: "+ last);
+            System.out.println(HR + "Execution failed");
             e.printStackTrace(System.out);
         }
         System.out.printf("%sExecution time: %.1fs%n", HR, 
@@ -69,10 +142,11 @@ public class Executor
                 output.setValue(result);
             }
             else if (result == null) {
-                throw new IllegalStateException("Scenario output cannot be null: "+ scenario.getSchema().getName());
+                throw new IllegalStateException("Scenario output cannot be null: "+ 
+                        scenario.getSchema().getName());
             }
             else {
-                Object value = findField(result.getClass(), output.getName()).get(result);
+                Object value = Reflection.findField(result.getClass(), output.getName()).get(result);
                 output.setValue(value);
             }
         }
@@ -91,7 +165,8 @@ public class Executor
         for (Parameter param : parameters) {
             Matcher m = pName.matcher(param.getName());
             if (! m.matches())
-                throw new IllegalArgumentException("Unknown parameter name: "+ param.getName());
+                throw new IllegalArgumentException(
+                        "Unknown parameter name: "+ param.getName());
             
             int index = Integer.parseInt(m.group(1));
             
@@ -108,43 +183,10 @@ public class Executor
             else { // complex object
                 if (args[index] == null)
                     args[index] = types[index].newInstance();
-                findField(types[index], m.group(3)).set(args[index], value);
+                Reflection.findField(types[index], m.group(3)).set(args[index], value);
             }
         }
         
         return args;
-    }
-
-    private Field findField(Class<?> type, String name) throws NoSuchFieldException
-    {
-        Class<?> cls = type;
-        while (type != null) {
-            try {
-                Field field = cls.getDeclaredField(name);
-                field.setAccessible(true);
-                return field;
-            }
-            catch (NoSuchFieldException e) {
-                cls = cls.getSuperclass();
-            }
-        }
-        throw new NoSuchFieldException(type + "." + name);
-    }
-
-    private Method findMethod(Class<?> type, String name) throws NoSuchMethodException
-    {
-        Method found = null;
-        for (Method m : type.getMethods())
-            if (m.isAnnotationPresent(com.netcracker.sova.annotated.anns.Scenario.class) && 
-                    m.getName().equals(name)) {
-                if (found == null)
-                    found = m;
-                else
-                    throw new NoSuchMethodException(type + " must have only one method '"+ name +"'");
-            }
-        if (found != null)
-            return found;
-        else
-            throw new NoSuchMethodException(type + "." + name);
     }
 }

@@ -16,7 +16,6 @@ public class TypeReaders implements ClassRegistry
         try {
             if (TypeReader.class.isAssignableFrom(type)) {
                 readers.add(type.asSubclass(TypeReader.class).newInstance());
-                System.out.println("AnnotationSchemaReader: registered type: "+ type);
             }
         }
         catch (Exception e) {

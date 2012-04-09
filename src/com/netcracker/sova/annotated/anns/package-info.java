@@ -52,7 +52,7 @@
  * </ol>
  * <p>
  * Scenario parameter type is infered from field/parameter java type and type-specific annotations
- * (for example {@link com.netcracker.sova.types.ref.Ref}).
+ * (for example {@link com.netcracker.sova.types.pub.Ref}).
  * 
  * <h2>Test scenario output results</h2>
  * Scenario output results can be described also in two ways:

@@ -11,6 +11,7 @@ import com.netcracker.sova.model.Parameter;
 import com.netcracker.sova.model.Scenario;
 import com.netcracker.sova.model.Test;
 import com.netcracker.sova.model.Type;
+import com.netcracker.sova.types.ref.RefValue;
 import com.netcracker.util.ClassRegistry;
 import com.netcracker.util.xml.Constructor;
 
@@ -27,6 +28,10 @@ public class XmlTestGroupWriter implements ConfigurationWriter, ClassRegistry
         catch (Exception e) {
             System.out.println("XmlTestGroupWriter: Failed to load "+ type);
         }
+    }
+    {
+        // register default types
+        register(RefValue.class);
     }
     
     @Override

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="SOVA">
+    <description>
+        Scenarios Object Variable Assembler makefile
+    </description>
+
+    <target name="types" description="Make types lib">
+        <jar destfile="ext/types.jar"
+              basedir="types/bin"/>
+    </target>
+
+    <target name="common">
+        <jar destfile="sova-common.jar">
+    	   <fileset dir="types/bin" includes="com/netcracker/sova/types/pub/*"/>
+           <fileset dir="bin" includes="com/netcracker/sova/types/pub/*"/>
+           <fileset dir="bin" includes="com/netcracker/sova/annotated/anns/*"/>
+    	</jar>
+    </target>
+
+    <target name="executor">
+        <jar destfile="sova-execute.jar">
+           <fileset dir="bin">
+           	  <exclude name="com/netcracker/sova/ui/**"/>
+           </fileset>
+           <manifest>
+              <attribute name="Main-Class" value="com.netcracker.sova.annotated.Executor"/>
+           </manifest>
+        </jar>
+    </target>
+
+    <target name="ui">
+        <jar destfile="sova.jar" basedir="bin">
+           <manifest>
+              <attribute name="Main-Class" value="com.netcracker.sova.ui.Configurator"/>
+           </manifest>
+        </jar>
+    </target>
+
+</project>

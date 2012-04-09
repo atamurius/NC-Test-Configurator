@@ -9,8 +9,8 @@ import com.netcracker.sova.annotated.anns.Output;
 import com.netcracker.sova.annotated.anns.Param;
 import com.netcracker.sova.annotated.anns.Scenario;
 import com.netcracker.sova.annotated.anns.Scenarios;
-import com.netcracker.sova.types.anns.Num;
-import com.netcracker.sova.types.ref.Ref;
+import com.netcracker.sova.types.pub.Num;
+import com.netcracker.sova.types.pub.Ref;
 
 /**
  * Schema example.

@@ -21,9 +21,6 @@ import com.netcracker.sova.model.Scenario;
 import com.netcracker.sova.model.Schema;
 import com.netcracker.sova.model.Schemas;
 import com.netcracker.sova.model.Test;
-import com.netcracker.sova.types.ref.RefTypeReader;
-import com.netcracker.sova.types.ref.RefValue;
-import com.netcracker.sova.types.ref.RefWidget;
 import com.netcracker.util.ClassEnumerator;
 import com.netcracker.util.Label;
 
@@ -50,12 +47,6 @@ public class Configurator
         XmlTestGroupWriter writer = new XmlTestGroupWriter();
         AnnotationSchemaReader schema = new AnnotationSchemaReader();
         
-        // standard types
-        schema.TYPE_READERS.register(RefTypeReader.class);
-        widgets.register(RefWidget.class);
-        reader.register(RefValue.class);
-        writer.register(RefValue.class);
-        
         ClassEnumerator classes = new ClassEnumerator(EXT_DIR);
         
         classes.registerClasses(reader, writer, schema.TYPE_READERS, widgets);
@@ -73,9 +64,14 @@ public class Configurator
         form.show();
     }
     
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
-        new Configurator();
+        Configurator conf = new Configurator();
+        if (args.length == 1) {
+            File file = new File(args[0]);
+            if (file.isFile())
+                conf.openTests(file);
+        }
     }
     
     public void createTest()
@@ -125,8 +121,13 @@ public class Configurator
         File file = form.showOpenDialog();
         if (file == null)
             return;
+        openTests(file);
+    }
+
+    public void openTests(File file) throws DataException
+    {
         form.setTitle(L.get("ui.title.file", file.getName()));
-        currentFile = file.getName();
+        currentFile = file.getAbsolutePath();
         try {
             InputStream in = new BufferedInputStream(new FileInputStream(currentFile));
             try {

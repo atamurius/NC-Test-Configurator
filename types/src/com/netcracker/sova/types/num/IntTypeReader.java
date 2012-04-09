@@ -8,7 +8,7 @@ import java.lang.reflect.AnnotatedElement;
 
 import com.netcracker.sova.model.Type;
 import com.netcracker.sova.types.SimpleTypeReader;
-import com.netcracker.sova.types.anns.Num;
+import com.netcracker.sova.types.pub.Num;
 
 public final class IntTypeReader extends SimpleTypeReader
 {

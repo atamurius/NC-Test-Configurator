@@ -2,7 +2,7 @@ package com.netcracker.tc.tests.examples.task;
 
 import com.netcracker.sova.annotated.anns.Param;
 import com.netcracker.sova.annotated.anns.Scenarios;
-import com.netcracker.sova.types.anns.Label;
+import com.netcracker.sova.types.pub.Label;
 
 @Scenarios("Task")
 public abstract class AbstractTask 

@@ -1,4 +1,4 @@
-package com.netcracker.sova.annotated;
+package com.netcracker.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
